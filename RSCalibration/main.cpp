@@ -12,6 +12,10 @@ int main()
 {
 	try
 	{
+		int width = 640;
+		int height = 480;
+		int fps = 30;
+
 		rs2::pipeline p;
 		rs2::config cfg;
 		rs2::frameset frames;
@@ -20,16 +24,17 @@ int main()
 
 		Ptr<cv::aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::DICT_4X4_50);
 
-		cfg.enable_stream(RS2_STREAM_COLOR, 640, 480, RS2_FORMAT_BGR8, 30);
+		//left IR Image
+		cfg.enable_stream(RS2_STREAM_INFRARED, 1, width, height, RS2_FORMAT_Y8, fps);
 		p.start(cfg);
 
 		while (true)
 		{
 			rs2::frameset frames = p.wait_for_frames();
 
-			rs2::frame color_frame = frames.get_color_frame();
+			rs2::frame ir_frame_left = frames.get_infrared_frame(1);
 			
-			Mat image(Size(640, 480), CV_8UC3, (void*)color_frame.get_data(), Mat::AUTO_STEP);
+			Mat image(Size(width, height), CV_8UC1, (void*)ir_frame_left.get_data());
 			Mat image_copy;
 			image.copyTo(image_copy);
 
