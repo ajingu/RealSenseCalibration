@@ -17,7 +17,7 @@ int main()
 	namedWindow("Display", WINDOW_AUTOSIZE);
 	imshow("Display", markerImage);
 
-	string file_name = "../Common/Image/4X4_100_" + to_string(id) + ".png";
+	string file_name = "../Common/Image/Marker/4X4_100_" + to_string(id) + ".png";
 	imwrite(file_name, markerImage);
 
 	cv::waitKey(0);

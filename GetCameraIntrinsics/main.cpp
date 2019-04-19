@@ -1,10 +1,12 @@
 #include <iostream>
+#include <sstream>
 
 #include <librealsense2/rs.hpp>
 
 #include <opencv2/opencv.hpp>
 
 using namespace std;
+using namespace cv;
 
 int main()
 {
@@ -33,10 +35,14 @@ int main()
 			return -1;
 		}
 
-		fs << "ppx" << intrinsics.ppx;
-		fs << "ppy" << intrinsics.ppy;
-		fs << "fx" << intrinsics.fx;
-		fs << "fy" << intrinsics.fy;
+		Mat intrinsics_mat = Mat::zeros(3, 3, CV_32F);
+		intrinsics_mat.at<float>(0, 0) = intrinsics.fx;
+		intrinsics_mat.at<float>(1, 1) = intrinsics.fy;
+		intrinsics_mat.at<float>(0, 2) = intrinsics.ppx;
+		intrinsics_mat.at<float>(1, 2) = intrinsics.ppy;
+		intrinsics_mat.at<float>(2, 2) = 1;
+
+		fs << "intrinsics" << intrinsics_mat;
 
 		fs.release();
 
@@ -47,10 +53,9 @@ int main()
 		}
 
 		cout << "SN: " << serial_number << endl;
-		cout << "ppx: " << (float)fs2["ppx"] << endl;
-		cout << "ppy: " << (float)fs2["ppy"] << endl;
-		cout << "fx: " << (float)fs2["fx"] << endl;
-		cout << "fy: " << (float)fs2["fy"] << endl;
+		Mat m;
+		fs2["intrinsics"] >> m;
+		cout << "intrinsics: " << endl << m  << endl;
 		cout << endl;
 
 		fs2.release();

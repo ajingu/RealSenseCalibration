@@ -5,13 +5,13 @@ VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSCalibration", "RSCalibration\RSCalibration.vcxproj", "{B5DA9D12-AD52-4DFC-B638-E3410F942363}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SingleCamOdometry", "SingleCamOdometry\SingleCamOdometry.vcxproj", "{A8DD4030-851E-42B6-AD19-C7AFB15CFAA0}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GetCameraIntrinsics", "GetCameraIntrinsics\GetCameraIntrinsics.vcxproj", "{FF845C28-81B1-42B1-8AE5-C40618733432}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TakeIRImage", "TakeIRImage\TakeIRImage.vcxproj", "{3410E374-CAE6-43DA-B206-CD1405360A78}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CreateMarker", "CreateMarker\CreateMarker.vcxproj", "{2A741FC1-CB1B-47D2-8C88-E1E65D9C369D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiCamVisualOdometry", "MultiCamVisualOdometry\MultiCamVisualOdometry.vcxproj", "{57A6753B-93D0-4BF9-B2DA-2184D76B4226}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,14 +29,6 @@ Global
 		{B5DA9D12-AD52-4DFC-B638-E3410F942363}.Release|x64.Build.0 = Release|x64
 		{B5DA9D12-AD52-4DFC-B638-E3410F942363}.Release|x86.ActiveCfg = Release|Win32
 		{B5DA9D12-AD52-4DFC-B638-E3410F942363}.Release|x86.Build.0 = Release|Win32
-		{A8DD4030-851E-42B6-AD19-C7AFB15CFAA0}.Debug|x64.ActiveCfg = Debug|x64
-		{A8DD4030-851E-42B6-AD19-C7AFB15CFAA0}.Debug|x64.Build.0 = Debug|x64
-		{A8DD4030-851E-42B6-AD19-C7AFB15CFAA0}.Debug|x86.ActiveCfg = Debug|Win32
-		{A8DD4030-851E-42B6-AD19-C7AFB15CFAA0}.Debug|x86.Build.0 = Debug|Win32
-		{A8DD4030-851E-42B6-AD19-C7AFB15CFAA0}.Release|x64.ActiveCfg = Release|x64
-		{A8DD4030-851E-42B6-AD19-C7AFB15CFAA0}.Release|x64.Build.0 = Release|x64
-		{A8DD4030-851E-42B6-AD19-C7AFB15CFAA0}.Release|x86.ActiveCfg = Release|Win32
-		{A8DD4030-851E-42B6-AD19-C7AFB15CFAA0}.Release|x86.Build.0 = Release|Win32
 		{FF845C28-81B1-42B1-8AE5-C40618733432}.Debug|x64.ActiveCfg = Debug|x64
 		{FF845C28-81B1-42B1-8AE5-C40618733432}.Debug|x64.Build.0 = Debug|x64
 		{FF845C28-81B1-42B1-8AE5-C40618733432}.Debug|x86.ActiveCfg = Debug|Win32
@@ -61,6 +53,14 @@ Global
 		{2A741FC1-CB1B-47D2-8C88-E1E65D9C369D}.Release|x64.Build.0 = Release|x64
 		{2A741FC1-CB1B-47D2-8C88-E1E65D9C369D}.Release|x86.ActiveCfg = Release|Win32
 		{2A741FC1-CB1B-47D2-8C88-E1E65D9C369D}.Release|x86.Build.0 = Release|Win32
+		{57A6753B-93D0-4BF9-B2DA-2184D76B4226}.Debug|x64.ActiveCfg = Debug|x64
+		{57A6753B-93D0-4BF9-B2DA-2184D76B4226}.Debug|x64.Build.0 = Debug|x64
+		{57A6753B-93D0-4BF9-B2DA-2184D76B4226}.Debug|x86.ActiveCfg = Debug|Win32
+		{57A6753B-93D0-4BF9-B2DA-2184D76B4226}.Debug|x86.Build.0 = Debug|Win32
+		{57A6753B-93D0-4BF9-B2DA-2184D76B4226}.Release|x64.ActiveCfg = Release|x64
+		{57A6753B-93D0-4BF9-B2DA-2184D76B4226}.Release|x64.Build.0 = Release|x64
+		{57A6753B-93D0-4BF9-B2DA-2184D76B4226}.Release|x86.ActiveCfg = Release|Win32
+		{57A6753B-93D0-4BF9-B2DA-2184D76B4226}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

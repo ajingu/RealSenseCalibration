@@ -16,6 +16,8 @@ int main()
 		int height = 480;
 		int fps = 30;
 
+		bool should_take_image;
+
 		rs2::context ctx;
 		rs2::pipeline p(ctx);
 		rs2::config cfg;
@@ -23,12 +25,13 @@ int main()
 
 		namedWindow("Display", WINDOW_AUTOSIZE);
 
-		Ptr<cv::aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::DICT_4X4_50);
+		Ptr<cv::aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::DICT_4X4_100);
 
 		//left IR Image
 		cfg.enable_stream(RS2_STREAM_INFRARED, 1, width, height, RS2_FORMAT_Y8, fps);
 		auto pipe_profile = cfg.resolve(p);
-		auto depth_sensor = pipe_profile.get_device().first<rs2::depth_sensor>();
+		auto dev = pipe_profile.get_device();
+		auto depth_sensor = dev.first<rs2::depth_sensor>();
 		
 		if (depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED))
 		{
@@ -50,14 +53,33 @@ int main()
 			vector<int> ids;
 			vector<vector<Point2f>> corners;
 			cv::aruco::detectMarkers(image, dictionary, corners, ids);
-			if (ids.size() > 0)
+			if (ids.size() >= 2)
+			{
+				should_take_image = true;
 				cv::aruco::drawDetectedMarkers(image_copy, corners, ids);
+			}
+			else
+			{
+				should_take_image = false;
+			}
+				
 
 			imshow("Display", image_copy);
 
 			char key = (char)cv::waitKey(10);
-			if (key == 27)
+			if (key == 27) //'esc'
+			{
 				break;
+			}
+			else if (key == 115) //'s'
+			{
+				if (should_take_image)
+				{
+					string file_name = "../Common/Image/Camera/" + string(dev.get_info(RS2_CAMERA_INFO_SERIAL_NUMBER)) + ".png";
+					imwrite(file_name, image);
+					cout << "Saved File Path: " << file_name << endl;
+				}
+			}
 		}
 
 		return EXIT_SUCCESS;
