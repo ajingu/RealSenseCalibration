@@ -40,10 +40,9 @@ int main()
 	//get marker points
 	Ptr<cv::aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::DICT_4X4_100);
 	vector<Point2f> points_src, points_dst;
-	bool is_source = true;
 
 
-	for_each(begin(serial_numbers), end(serial_numbers), [&dictionary, &points_src, &points_dst, &is_source](string sn)
+	for_each(begin(serial_numbers), end(serial_numbers), [&dictionary, &points_src, &points_dst, &serial_numbers](string sn)
 	{
 		string file_name = "../Common/Image/Camera/" + sn + ".png";
 		Mat image = imread(file_name);
@@ -61,7 +60,7 @@ int main()
 			{
 				for (int j = 0; j < 4; j++)
 				{
-					if (is_source)
+					if (sn == serial_numbers[0])
 					{
 						points_src.push_back(corners[i][j]);
 					}
@@ -72,8 +71,6 @@ int main()
 				}
 
 			}
-
-			is_source = false;
 		}
 
 		imshow(sn, image_copy);
@@ -83,7 +80,16 @@ int main()
 
 	cout << "F: " << endl << F << endl;
 
+	Mat A_src = intrinsics_map[serial_numbers[0]];
+	Mat A_dst = intrinsics_map[serial_numbers[1]];
 	
+
+	cout << "F: " << F.type() << endl;
+	cout << "A_src: " << A_src.type() << endl;
+	cout << "A_dst: " << A_dst.type() << endl;
+	
+	Mat E = A_src.t() * F * A_dst;
+	cout << "E: " << endl << E << endl;
 
 
 	while (true)

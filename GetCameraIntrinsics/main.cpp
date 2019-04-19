@@ -35,12 +35,12 @@ int main()
 			return -1;
 		}
 
-		Mat intrinsics_mat = Mat::zeros(3, 3, CV_32F);
-		intrinsics_mat.at<float>(0, 0) = intrinsics.fx;
-		intrinsics_mat.at<float>(1, 1) = intrinsics.fy;
-		intrinsics_mat.at<float>(0, 2) = intrinsics.ppx;
-		intrinsics_mat.at<float>(1, 2) = intrinsics.ppy;
-		intrinsics_mat.at<float>(2, 2) = 1;
+		Mat intrinsics_mat = Mat::zeros(3, 3, CV_64FC1);
+		intrinsics_mat.at<double>(0, 0) = intrinsics.fx;
+		intrinsics_mat.at<double>(1, 1) = intrinsics.fy;
+		intrinsics_mat.at<double>(0, 2) = intrinsics.ppx;
+		intrinsics_mat.at<double>(1, 2) = intrinsics.ppy;
+		intrinsics_mat.at<double>(2, 2) = 1;
 
 		fs << "intrinsics" << intrinsics_mat;
 
