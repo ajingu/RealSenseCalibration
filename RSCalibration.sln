@@ -13,6 +13,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CreateMarker", "CreateMarke
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiCamVisualOdometry", "MultiCamVisualOdometry\MultiCamVisualOdometry.vcxproj", "{57A6753B-93D0-4BF9-B2DA-2184D76B4226}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgSort", "ArgSort\ArgSort.vcxproj", "{E862AFB5-145E-420D-801B-BFE3DC03CC7E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReprojectionError", "ReprojectionError\ReprojectionError.vcxproj", "{E24063E8-C72F-49B8-8572-A05160115C1B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -61,6 +65,22 @@ Global
 		{57A6753B-93D0-4BF9-B2DA-2184D76B4226}.Release|x64.Build.0 = Release|x64
 		{57A6753B-93D0-4BF9-B2DA-2184D76B4226}.Release|x86.ActiveCfg = Release|Win32
 		{57A6753B-93D0-4BF9-B2DA-2184D76B4226}.Release|x86.Build.0 = Release|Win32
+		{E862AFB5-145E-420D-801B-BFE3DC03CC7E}.Debug|x64.ActiveCfg = Debug|x64
+		{E862AFB5-145E-420D-801B-BFE3DC03CC7E}.Debug|x64.Build.0 = Debug|x64
+		{E862AFB5-145E-420D-801B-BFE3DC03CC7E}.Debug|x86.ActiveCfg = Debug|Win32
+		{E862AFB5-145E-420D-801B-BFE3DC03CC7E}.Debug|x86.Build.0 = Debug|Win32
+		{E862AFB5-145E-420D-801B-BFE3DC03CC7E}.Release|x64.ActiveCfg = Release|x64
+		{E862AFB5-145E-420D-801B-BFE3DC03CC7E}.Release|x64.Build.0 = Release|x64
+		{E862AFB5-145E-420D-801B-BFE3DC03CC7E}.Release|x86.ActiveCfg = Release|Win32
+		{E862AFB5-145E-420D-801B-BFE3DC03CC7E}.Release|x86.Build.0 = Release|Win32
+		{E24063E8-C72F-49B8-8572-A05160115C1B}.Debug|x64.ActiveCfg = Debug|x64
+		{E24063E8-C72F-49B8-8572-A05160115C1B}.Debug|x64.Build.0 = Debug|x64
+		{E24063E8-C72F-49B8-8572-A05160115C1B}.Debug|x86.ActiveCfg = Debug|Win32
+		{E24063E8-C72F-49B8-8572-A05160115C1B}.Debug|x86.Build.0 = Debug|Win32
+		{E24063E8-C72F-49B8-8572-A05160115C1B}.Release|x64.ActiveCfg = Release|x64
+		{E24063E8-C72F-49B8-8572-A05160115C1B}.Release|x64.Build.0 = Release|x64
+		{E24063E8-C72F-49B8-8572-A05160115C1B}.Release|x86.ActiveCfg = Release|Win32
+		{E24063E8-C72F-49B8-8572-A05160115C1B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

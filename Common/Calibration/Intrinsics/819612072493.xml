@@ -7,4 +7,10 @@
   <data>
     3.8547299194335938e+02 0. 3.2027593994140625e+02 0.
     3.8547299194335938e+02 2.3945849609375000e+02 0. 0. 1.</data></intrinsics>
+<distCoeffs type_id="opencv-matrix">
+  <rows>5</rows>
+  <cols>1</cols>
+  <dt>d</dt>
+  <data>
+    0. 0. 0. 0. 0.</data></distCoeffs>
 </opencv_storage>

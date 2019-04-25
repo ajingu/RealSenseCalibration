@@ -9,7 +9,7 @@ using namespace cv;
 int main()
 {
 	Mat markerImage;
-	int id = 2;
+	int id = 8;
 
 	Ptr<aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::DICT_4X4_100);
 	aruco::drawMarker(dictionary, id, 200, markerImage, 1);

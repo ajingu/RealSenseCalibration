@@ -44,6 +44,15 @@ int main()
 
 		fs << "intrinsics" << intrinsics_mat;
 
+		auto dist_coeffs = intrinsics.coeffs;
+		Mat dist_coeffs_mat = Mat::zeros(5, 1, CV_64FC1);
+		dist_coeffs_mat.at<double>(0, 0) = dist_coeffs[0];
+		dist_coeffs_mat.at<double>(1, 0) = dist_coeffs[1];
+		dist_coeffs_mat.at<double>(2, 0) = dist_coeffs[2];
+		dist_coeffs_mat.at<double>(3, 0) = dist_coeffs[3];
+		dist_coeffs_mat.at<double>(4, 0) = dist_coeffs[4];
+		fs << "distCoeffs" << dist_coeffs_mat;
+
 		fs.release();
 
 		cv::FileStorage fs2(intrinsics_root_path + serial_number + ".xml", cv::FileStorage::READ);
@@ -53,9 +62,11 @@ int main()
 		}
 
 		cout << "SN: " << serial_number << endl;
-		Mat m;
-		fs2["intrinsics"] >> m;
-		cout << "intrinsics: " << endl << m  << endl;
+		Mat m1, m2;
+		fs2["intrinsics"] >> m1;
+		fs2["distCoeffs"] >> m2;
+		cout << "intrinsics: " << endl << m1 << endl;
+		cout << "distCoeffs: " << endl << m2 << endl;
 		cout << endl;
 
 		fs2.release();
