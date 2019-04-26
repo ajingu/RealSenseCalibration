@@ -41,10 +41,10 @@ vector<Point3f> getCornersInCameraWorld(double side, Vec3d rvec, Vec3d tvec)
 	// return vector:
 	vector<Point3f> ret(4, tvec_3f);
 
-	ret[0] += -camWorldE - camWorldF; //top left
-	ret[1] += camWorldE - camWorldF; //top right
-	ret[2] += camWorldE + camWorldF; //bottom right
-	ret[3] += -camWorldE + camWorldF; //bottom left
+	ret[0] += -camWorldE + camWorldF; //top left
+	ret[1] += camWorldE + camWorldF; //top right
+	ret[2] += camWorldE - camWorldF; //bottom right
+	ret[3] += -camWorldE - camWorldF; //bottom left
 
 	return ret;
 }
@@ -151,6 +151,10 @@ int main()
 		camera_rvec, camera_tvec);
 
 	Rodrigues(camera_rvec, camera_rot);
+
+	//camera(t+1) transform on camera(t) transform
+	camera_rot = camera_rot.t();
+	camera_tvec = -camera_rot * camera_tvec;
 
 	cout << "R: " << endl << camera_rot << endl;
 	cout << "t: " << endl << camera_tvec << endl;
