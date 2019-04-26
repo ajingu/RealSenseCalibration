@@ -85,11 +85,14 @@ int main()
 	vector<Point3f> object_points;
 	vector<Point2f> image_points;
 
+	map<string, Mat> images;
 
-	for_each(begin(serial_numbers), end(serial_numbers), [&dictionary, &object_points, &image_points, &serial_numbers, &camera_matrix_map, &dist_coeffs_map](string sn)
+
+	for_each(begin(serial_numbers), end(serial_numbers), [&dictionary, &object_points, &image_points, &serial_numbers, &camera_matrix_map, &dist_coeffs_map, &images](string sn)
 	{
 		string file_name = "../Common/Image/IR/" + sn + ".png";
 		Mat image = imread(file_name);
+		images[sn] = image;
 		Mat image_copy;
 		image.copyTo(image_copy);
 		vector<int> ids;
@@ -150,6 +153,9 @@ int main()
 		camera_matrix_map[serial_numbers[1]], dist_coeffs_map[serial_numbers[1]],
 		camera_rvec, camera_tvec);
 
+	vector<Point2f> reprojected_points;
+	projectPoints(object_points, camera_rvec, camera_tvec, camera_matrix_map[serial_numbers[1]], dist_coeffs_map[serial_numbers[1]], reprojected_points);
+
 	Rodrigues(camera_rvec, camera_rot);
 
 	//camera(t+1) transform on camera(t) transform
@@ -159,6 +165,18 @@ int main()
 	cout << "R: " << endl << camera_rot << endl;
 	cout << "t: " << endl << camera_tvec << endl;
 
+	Mat reprojection_image = images[serial_numbers[1]];
+	for (int i = 0; i < reprojected_points.size(); i++)
+	{
+		drawMarker(reprojection_image, image_points[i], Scalar(255, 0, 0), MARKER_CROSS, 10, 2);
+		drawMarker(reprojection_image, reprojected_points[i], Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
+	}
+
+	putText(reprojection_image, "BLUE : Marker Points (t+1)", cv::Point{ 10,20 }, cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 0, 0), 2);
+	putText(reprojection_image, "GREEN : Reprojected Points (t -> t+1)", cv::Point{ 10,45 }, cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0, 255, 0), 2);
+
+	imshow("Reprojection", reprojection_image);
+	
 
 	while (true)
 	{
