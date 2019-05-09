@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <numeric>
+#include <fstream>
 
 #include <librealsense2/rs.hpp>
 
@@ -165,6 +166,27 @@ int main()
 	cout << "R: " << endl << camera_rot << endl;
 	cout << "t: " << endl << camera_tvec << endl;
 
+	ofstream fout;
+	fout.open("../Common/Correspondence/two_cam_data.txt");
+	fout << 1 << " " << image_points.size() << endl;
+	for (int i = 0; i < image_points.size(); i++)
+	{
+		Point2f image_point = image_points[i];
+		fout << 0 << " " << i << " " << image_point.x << " " << image_point.y << endl;
+	}
+	for (int i = 0; i < 1; i++)
+	{
+		fout << camera_rvec.at<double>(0) << " " << camera_rvec.at<double>(1) << " " << camera_rvec.at<double>(2) << endl;
+		fout << camera_tvec.at<double>(0) << " " << camera_tvec.at<double>(1) << " " << camera_tvec.at<double>(2) << endl;
+	}
+	for (int i = 0; i < object_points.size(); i++)
+	{
+		Point3f object_point = object_points[i];
+		fout << object_point.x << " " << object_point.y << " " << object_point.z << endl;
+	}
+	fout.close();
+
+	//visualization
 	Mat reprojection_image = images[serial_numbers[1]];
 	for (int i = 0; i < reprojected_points.size(); i++)
 	{
