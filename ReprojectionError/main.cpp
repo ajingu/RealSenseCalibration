@@ -13,7 +13,7 @@
 using namespace std;
 using namespace cv;
 
-vector<Point3f> getCornersInCameraWorld(double side, Vec3d rvec, Vec3d tvec)
+vector<Point3d> getCornersInCameraWorld(double side, Vec3d rvec, Vec3d tvec)
 {
 	double half_side = side / 2;
 
@@ -27,20 +27,20 @@ vector<Point3f> getCornersInCameraWorld(double side, Vec3d rvec, Vec3d tvec)
 
 	// the two E-O and F-O vectors
 	double * tmp = rot_mat_t.ptr<double>(0);
-	Point3f camWorldE(tmp[0] * half_side,
+	Point3d camWorldE(tmp[0] * half_side,
 		tmp[1] * half_side,
 		tmp[2] * half_side);
 
 	tmp = rot_mat_t.ptr<double>(1);
-	Point3f camWorldF(tmp[0] * half_side,
+	Point3d camWorldF(tmp[0] * half_side,
 		tmp[1] * half_side,
 		tmp[2] * half_side);
 
 	// convert tvec to point
-	Point3f tvec_3f(tvec[0], tvec[1], tvec[2]);
+	Point3d tvec_3d(tvec[0], tvec[1], tvec[2]);
 
 	// return vector:
-	vector<Point3f> ret(4, tvec_3f);
+	vector<Point3d> ret(4, tvec_3d);
 
 	ret[0] += -camWorldE + camWorldF; //top left
 	ret[1] += camWorldE + camWorldF; //top right
@@ -83,7 +83,7 @@ int main()
 
 	//get marker points
 	Ptr<cv::aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::DICT_4X4_100);
-	vector<Point3f> object_points;
+	vector<Point3d> object_points;
 	vector<Point2f> image_points;
 
 	map<string, Mat> images;
@@ -98,7 +98,7 @@ int main()
 		image.copyTo(image_copy);
 		vector<int> ids;
 		vector<vector<Point2f>> corners;
-
+		
 		cv::aruco::detectMarkers(image, dictionary, corners, ids);
 		if (ids.size() > 0)
 		{
@@ -133,7 +133,7 @@ int main()
 			{
 				if (sn == serial_numbers[0])
 				{
-					vector<Point3f> corners3D = getCornersInCameraWorld(MARKER_SIDE, rvecs[indices[i]], tvecs[indices[i]]);
+					vector<Point3d> corners3D = getCornersInCameraWorld(MARKER_SIDE, rvecs[indices[i]], tvecs[indices[i]]);
 					object_points.insert(object_points.end(), corners3D.begin(), corners3D.end());
 				}
 				else if(sn == serial_numbers[1])
@@ -148,15 +148,15 @@ int main()
 	});
 
 	Mat camera_rvec, camera_rot, camera_tvec;
-
+	
 	solvePnP(
 		object_points, image_points,
 		camera_matrix_map[serial_numbers[1]], dist_coeffs_map[serial_numbers[1]],
 		camera_rvec, camera_tvec);
-
-	vector<Point2f> reprojected_points;
+	
+	vector<Point2d> reprojected_points;
 	projectPoints(object_points, camera_rvec, camera_tvec, camera_matrix_map[serial_numbers[1]], dist_coeffs_map[serial_numbers[1]], reprojected_points);
-
+	
 	Rodrigues(camera_rvec, camera_rot);
 
 	//camera(t+1) transform on camera(t) transform
@@ -181,7 +181,7 @@ int main()
 	}
 	for (int i = 0; i < object_points.size(); i++)
 	{
-		Point3f object_point = object_points[i];
+		Point3d object_point = object_points[i];
 		fout << object_point.x << " " << object_point.y << " " << object_point.z << endl;
 	}
 	fout.close();
