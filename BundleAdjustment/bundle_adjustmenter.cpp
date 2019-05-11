@@ -106,23 +106,41 @@ private:
 
 struct ReprojectionError 
 {
+	double observed_x;
+	double observed_y;
+	double fx, fy, ppx, ppy;
+	Mat dist_coeffs;
+
 	ReprojectionError(const double observed_x, const double observed_y, const Mat& intrinsics, const Mat& dist_coeffs)
-		: observed_x(observed_x), observed_y(observed_y), intrinsics(intrinsics), dist_coeffs(dist_coeffs) {}
+		: observed_x(observed_x), observed_y(observed_y), dist_coeffs(dist_coeffs) 
+	{
+		fx = intrinsics.at<double>(0, 0);
+		fy = intrinsics.at<double>(1, 1);
+		ppx = intrinsics.at<double>(0, 2);
+		ppy = intrinsics.at<double>(1, 2);
+	}
 	
 	template <typename T>
 	bool operator()(const T* const camera, const T* const point, T* residuals) const 
 	{
-		Eigen::Matrix<T, 3, 1> object_points, camera_rvec, camera_tvec;
-		object_points << point[0], point[1], point[2];
-		camera_rvec << camera[0], camera[1], camera[2];
-		camera_tvec << camera[3], camera[4], camera[5];
+		//cout << "camera_r: " << camera[0] << ", " << camera[1] << ", " << camera[2] << endl;
+		//cout << "camera_t: " << camera[3] << ", " << camera[4] << ", " << camera[5] << endl;
+		//cout << "point: " << point[0] << ", " << point[1] << ", " << point[2] << endl;
 
+		T p[3];
+		AngleAxisRotatePoint(camera, point, p);
+		p[0] += camera[3];
+		p[1] += camera[4];
+		p[2] += camera[5];
 
-		Eigen::Matrix<T, 2, 1> reprojected_points;
-		projectPoints(object_points, camera_rvec, camera_tvec, intrinsics, dist_coeffs, reprojected_points);
+		T xp = T(fx) * p[0] / p[2] + T(ppx);
+		T yp = T(fy) * p[1] / p[2] + T(ppy);
 
-		residuals[0] = reprojected_points(0, 0) - T(observed_x);
-		residuals[1] = reprojected_points(1, 0) - T(observed_y);
+		//FIXME Distortion
+		cout << "ox: " << observed_x << " px: " << xp << " oy: " << observed_y << " py: " << yp << endl;
+		
+		residuals[0] = xp - T(observed_x);
+		residuals[1] = yp - T(observed_y);
 
 		return true;
 	}
@@ -132,8 +150,4 @@ struct ReprojectionError
 		return (new AutoDiffCostFunction<ReprojectionError, 2, 3, 3>(
 			new ReprojectionError(observed_x, observed_y, intrinsics, dist_coeffs)));
 	}
-	double observed_x;
-	double observed_y;
-	Mat intrinsics;
-	Mat dist_coeffs;
 };

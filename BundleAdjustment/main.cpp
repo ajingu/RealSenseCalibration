@@ -21,14 +21,19 @@ int main(int argc, char** argv)
 	string serial_numbers[2] = { "819612072493", "825312072048" };
 	map<string, Mat> camera_matrix_map;
 	map<string, Mat> dist_coeffs_map;
+	map<string, Mat> images;
 
-	for_each(begin(serial_numbers), end(serial_numbers), [&camera_matrix_map, &dist_coeffs_map](string sn)
+	for_each(begin(serial_numbers), end(serial_numbers), [&camera_matrix_map, &dist_coeffs_map, &images](string sn)
 	{
-		string file_name = "../Common/Calibration/Intrinsics/" + sn + ".xml";
-		FileStorage fs(file_name, FileStorage::READ);
+		string image_file_name = "../Common/Image/IR/" + sn + ".png";
+		Mat image = imread(image_file_name);
+		images[sn] = image;
+
+		string intrinsics_file_name = "../Common/Calibration/Intrinsics/" + sn + ".xml";
+		FileStorage fs(intrinsics_file_name, FileStorage::READ);
 		if (!fs.isOpened())
 		{
-			std::cout << "File can not be opened." << std::endl;
+			cout << "File can not be opened." << endl;
 			return -1;
 		}
 
@@ -53,9 +58,11 @@ int main(int argc, char** argv)
 		std::cerr << "ERROR: unable to open file " << "\n";
 		return 1;
 	}
+	
 	const double* observations = bal_problem.observations();
 
 	Problem problem;
+
 	for (int i = 0; i < bal_problem.num_observations(); i++)
 	{
 		CostFunction* cost_function =
@@ -77,8 +84,18 @@ int main(int argc, char** argv)
 	Solver::Summary summary;
 	Solve(options, &problem, &summary);
 	cout << summary.FullReport() << endl;
+
 	/*
+	Mat camera_rvec, camera_rot, camera_tvec;
+
+	double* camera_extrinsics = bal_problem.mutable_cameras();
+	camera_rvec = (Mat_<double>(3, 1) << camera_extrinsics[0], camera_extrinsics[1], camera_extrinsics[2]);
+	camera_tvec = (Mat_<double>(3, 1) << camera_extrinsics[3], camera_extrinsics[4], camera_extrinsics[5]);
 	Rodrigues(camera_rvec, camera_rot);
+
+	//FIXME object_points(mutable_points_)‚Æimage_points(observations_)
+	vector<Point2d> image_points,reprojected_points;
+	projectPoints(object_points, camera_rvec, camera_tvec, camera_matrix_map[serial_numbers[1]], dist_coeffs_map[serial_numbers[1]], reprojected_points);
 
 	//camera(t+1) transform on camera(t) transform
 	camera_rot = camera_rot.t();
