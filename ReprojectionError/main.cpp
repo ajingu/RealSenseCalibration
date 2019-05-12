@@ -159,6 +159,29 @@ int main()
 	
 	Rodrigues(camera_rvec, camera_rot);
 
+	ofstream fout;
+	fout.open("../Common/Correspondence/two_cam_data.txt");
+	fout << 1 << " " << image_points.size() << endl;
+	for (int i = 0; i < image_points.size(); i++)
+	{
+		//camera(t) image coordinate
+		Point2f image_point = image_points[i];
+		fout << 0 << " " << i << " " << image_point.x << " " << image_point.y << endl;
+	}
+	for (int i = 0; i < 1; i++)
+	{
+		//camera(t) transform on camera(t+1) transform
+		fout << camera_rvec.at<double>(0) << " " << camera_rvec.at<double>(1) << " " << camera_rvec.at<double>(2) << endl;
+		fout << camera_tvec.at<double>(0) << " " << camera_tvec.at<double>(1) << " " << camera_tvec.at<double>(2) << endl;
+	}
+	for (int i = 0; i < object_points.size(); i++)
+	{
+		//camera(t) world coordinate
+		Point3d object_point = object_points[i];
+		fout << object_point.x << " " << object_point.y << " " << object_point.z << endl;
+	}
+	fout.close();
+
 	//camera(t+1) transform on camera(t) transform
 	camera_rot = camera_rot.t();
 	camera_tvec = -camera_rot * camera_tvec;
@@ -166,26 +189,6 @@ int main()
 
 	cout << "R: " << endl << camera_rot << endl;
 	cout << "t: " << endl << camera_tvec << endl;
-
-	ofstream fout;
-	fout.open("../Common/Correspondence/two_cam_data.txt");
-	fout << 1 << " " << image_points.size() << endl;
-	for (int i = 0; i < image_points.size(); i++)
-	{
-		Point2f image_point = image_points[i];
-		fout << 0 << " " << i << " " << image_point.x << " " << image_point.y << endl;
-	}
-	for (int i = 0; i < 1; i++)
-	{
-		fout << camera_rvec.at<double>(0) << " " << camera_rvec.at<double>(1) << " " << camera_rvec.at<double>(2) << endl;
-		fout << camera_tvec.at<double>(0) << " " << camera_tvec.at<double>(1) << " " << camera_tvec.at<double>(2) << endl;
-	}
-	for (int i = 0; i < object_points.size(); i++)
-	{
-		Point3d object_point = object_points[i];
-		fout << object_point.x << " " << object_point.y << " " << object_point.z << endl;
-	}
-	fout.close();
 
 	//visualization
 	Mat reprojection_image = images[serial_numbers[1]];

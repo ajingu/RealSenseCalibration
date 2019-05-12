@@ -56,12 +56,12 @@ int main(int argc, char** argv)
 	BALProblem bal_problem;
 	if (!bal_problem.LoadFile("../Common/Correspondence/two_cam_data.txt")) 
 	{
-		std::cerr << "ERROR: unable to open file " << "\n";
+		cerr << "ERROR: unable to open file " << "\n";
 		return 1;
 	}
 	
 	const double* observations = bal_problem.observations();
-
+	
 	Problem problem;
 
 	for (int i = 0; i < bal_problem.num_observations(); i++)
@@ -78,21 +78,14 @@ int main(int argc, char** argv)
 			bal_problem.mutable_camera_for_observation(i),
 			bal_problem.mutable_point_for_observation(i));
 	}
-
+	
 	Solver::Options options;
 	options.linear_solver_type = DENSE_SCHUR;
 	options.minimizer_progress_to_stdout = true;
 	Solver::Summary summary;
 	Solve(options, &problem, &summary);
 	cout << summary.FullReport() << endl;
-
 	
-	Mat camera_rvec, camera_rot, camera_tvec;
-
-	double* camera_extrinsics = bal_problem.mutable_cameras();
-	camera_rvec = (Mat_<double>(3, 1) << camera_extrinsics[0], camera_extrinsics[1], camera_extrinsics[2]);
-	camera_tvec = (Mat_<double>(3, 1) << camera_extrinsics[3], camera_extrinsics[4], camera_extrinsics[5]);
-	Rodrigues(camera_rvec, camera_rot);
 
 	vector<Point2d> image_points(bal_problem.num_observations()),reprojected_points;
 	vector<Point3d> object_points(bal_problem.num_observations());
@@ -107,22 +100,19 @@ int main(int argc, char** argv)
 	}
 
 	double* camera_vec_ptr = bal_problem.mutable_cameras();
-	camera_rvec.at<double>(0, 0) = camera_vec_ptr[0];
-	camera_rvec.at<double>(1, 0) = camera_vec_ptr[1];
-	camera_rvec.at<double>(2, 0) = camera_vec_ptr[2];
-	camera_tvec.at<double>(0, 0) = camera_vec_ptr[3];
-	camera_tvec.at<double>(1, 0) = camera_vec_ptr[4];
-	camera_tvec.at<double>(2, 0) = camera_vec_ptr[5];
+	Mat camera_rvec = (Mat_<double>(3, 1) << camera_vec_ptr[0], camera_vec_ptr[1], camera_vec_ptr[2]);
+	Mat camera_tvec = (Mat_<double>(3, 1) << camera_vec_ptr[3], camera_vec_ptr[4], camera_vec_ptr[5]);
+	
+	projectPoints(object_points, camera_rvec, camera_tvec, camera_matrix_map[serial_numbers[1]], dist_coeffs_map[serial_numbers[1]], reprojected_points);
 
+	Mat camera_rot;
 	Rodrigues(camera_rvec, camera_rot);
+	camera_rot = camera_rot.t();
+	camera_tvec = -camera_rot * camera_tvec;
 	cout << "R: " << endl << camera_rot << endl;
 	cout << "t: " << endl << camera_tvec << endl;
 
-	camera_rot = camera_rot.t();
-	camera_tvec = -camera_rot * camera_tvec;
-	Rodrigues(camera_rot, camera_rvec);
-	projectPoints(object_points, camera_rvec, camera_tvec, camera_matrix_map[serial_numbers[1]], dist_coeffs_map[serial_numbers[1]], reprojected_points);
-
+	
 	Mat reprojection_image = images[serial_numbers[1]];
 	for (int i = 0; i < reprojected_points.size(); i++)
 	{
