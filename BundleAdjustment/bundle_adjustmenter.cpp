@@ -123,6 +123,8 @@ struct ReprojectionError
 	template <typename T>
 	bool operator()(const T* const camera, const T* const point, T* residuals) const 
 	{
+		//FIXME camera_t‚Ì”­U‹ï‡‚ª‚â‚Î‚¢(ceres‚ğ‚¿‚á‚ñ‚Æ—‰ğ‚Å‚«‚Ä‚é‚©H)
+
 		//cout << "camera_r: " << camera[0] << ", " << camera[1] << ", " << camera[2] << endl;
 		//cout << "camera_t: " << camera[3] << ", " << camera[4] << ", " << camera[5] << endl;
 		//cout << "point: " << point[0] << ", " << point[1] << ", " << point[2] << endl;
@@ -137,7 +139,7 @@ struct ReprojectionError
 		T yp = T(fy) * p[1] / p[2] + T(ppy);
 
 		//FIXME Distortion
-		cout << "ox: " << observed_x << " px: " << xp << " oy: " << observed_y << " py: " << yp << endl;
+		//cout << "ox: " << observed_x << " px: " << xp << " oy: " << observed_y << " py: " << yp << endl;
 		
 		residuals[0] = xp - T(observed_x);
 		residuals[1] = yp - T(observed_y);
@@ -147,7 +149,7 @@ struct ReprojectionError
 	
 	static ceres::CostFunction* Create(const double observed_x, const double observed_y, const Mat& intrinsics, const Mat& dist_coeffs)
 	{
-		return (new AutoDiffCostFunction<ReprojectionError, 2, 3, 3>(
+		return (new AutoDiffCostFunction<ReprojectionError, 2, 6, 3>(
 			new ReprojectionError(observed_x, observed_y, intrinsics, dist_coeffs)));
 	}
 };

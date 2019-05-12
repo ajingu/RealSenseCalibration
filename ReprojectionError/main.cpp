@@ -162,6 +162,7 @@ int main()
 	//camera(t+1) transform on camera(t) transform
 	camera_rot = camera_rot.t();
 	camera_tvec = -camera_rot * camera_tvec;
+	Rodrigues(camera_rot, camera_rvec);
 
 	cout << "R: " << endl << camera_rot << endl;
 	cout << "t: " << endl << camera_tvec << endl;

@@ -25,8 +25,8 @@ int main(int argc, char** argv)
 
 	for_each(begin(serial_numbers), end(serial_numbers), [&camera_matrix_map, &dist_coeffs_map, &images](string sn)
 	{
-		string image_file_name = "../Common/Image/IR/" + sn + ".png";
-		Mat image = imread(image_file_name);
+		string file_name = "../Common/Image/IR/" + sn + ".png";
+		Mat image = imread(file_name);
 		images[sn] = image;
 
 		string intrinsics_file_name = "../Common/Calibration/Intrinsics/" + sn + ".xml";
@@ -49,6 +49,7 @@ int main(int argc, char** argv)
 		fs.release();
 	});
 
+	
 	//Bundle Adjustment
 	google::InitGoogleLogging(argv[0]);
 
@@ -85,7 +86,7 @@ int main(int argc, char** argv)
 	Solve(options, &problem, &summary);
 	cout << summary.FullReport() << endl;
 
-	/*
+	
 	Mat camera_rvec, camera_rot, camera_tvec;
 
 	double* camera_extrinsics = bal_problem.mutable_cameras();
@@ -93,16 +94,34 @@ int main(int argc, char** argv)
 	camera_tvec = (Mat_<double>(3, 1) << camera_extrinsics[3], camera_extrinsics[4], camera_extrinsics[5]);
 	Rodrigues(camera_rvec, camera_rot);
 
-	//FIXME object_points(mutable_points_)‚Æimage_points(observations_)
-	vector<Point2d> image_points,reprojected_points;
-	projectPoints(object_points, camera_rvec, camera_tvec, camera_matrix_map[serial_numbers[1]], dist_coeffs_map[serial_numbers[1]], reprojected_points);
+	vector<Point2d> image_points(bal_problem.num_observations()),reprojected_points;
+	vector<Point3d> object_points(bal_problem.num_observations());
+	for (int i = 0; i < bal_problem.num_observations(); i++)
+	{
+		Point2d image_point(observations[2 * i + 0], observations[2 * i + 1]);
+		image_points.emplace_back(image_point);
 
-	//camera(t+1) transform on camera(t) transform
-	camera_rot = camera_rot.t();
-	camera_tvec = -camera_rot * camera_tvec;
+		double* object_point_ptr = bal_problem.mutable_point_for_observation(i);
+		Point3d object_point(object_point_ptr[0], object_point_ptr[1], object_point_ptr[2]);
+		object_points.emplace_back(object_point);
+	}
 
+	double* camera_vec_ptr = bal_problem.mutable_cameras();
+	camera_rvec.at<double>(0, 0) = camera_vec_ptr[0];
+	camera_rvec.at<double>(1, 0) = camera_vec_ptr[1];
+	camera_rvec.at<double>(2, 0) = camera_vec_ptr[2];
+	camera_tvec.at<double>(0, 0) = camera_vec_ptr[3];
+	camera_tvec.at<double>(1, 0) = camera_vec_ptr[4];
+	camera_tvec.at<double>(2, 0) = camera_vec_ptr[5];
+
+	Rodrigues(camera_rvec, camera_rot);
 	cout << "R: " << endl << camera_rot << endl;
 	cout << "t: " << endl << camera_tvec << endl;
+
+	camera_rot = camera_rot.t();
+	camera_tvec = -camera_rot * camera_tvec;
+	Rodrigues(camera_rot, camera_rvec);
+	projectPoints(object_points, camera_rvec, camera_tvec, camera_matrix_map[serial_numbers[1]], dist_coeffs_map[serial_numbers[1]], reprojected_points);
 
 	Mat reprojection_image = images[serial_numbers[1]];
 	for (int i = 0; i < reprojected_points.size(); i++)
@@ -115,8 +134,13 @@ int main(int argc, char** argv)
 	putText(reprojection_image, "GREEN : Reprojected Points (t -> t+1)", cv::Point{ 10,45 }, cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0, 255, 0), 2);
 
 	imshow("Reprojection", reprojection_image);
-	*/
-	system("PAUSE");
+	
+	while (true)
+	{
+		char key = (char)cv::waitKey(10);
+		if (key == 27)
+			break;
+	}
 
 	return 0;
 }
