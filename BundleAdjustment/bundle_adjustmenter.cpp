@@ -123,10 +123,6 @@ struct ReprojectionError
 	template <typename T>
 	bool operator()(const T* const camera, const T* const point, T* residuals) const 
 	{
-		//cout << "camera_r: " << camera[0] << ", " << camera[1] << ", " << camera[2] << endl;
-		//cout << "camera_t: " << camera[3] << ", " << camera[4] << ", " << camera[5] << endl;
-		//cout << "point: " << point[0] << ", " << point[1] << ", " << point[2] << endl;
-
 		T p[3];
 		AngleAxisRotatePoint(camera, point, p);
 		p[0] += camera[3];
@@ -136,8 +132,8 @@ struct ReprojectionError
 		T xp = T(fx) * p[0] / p[2] + T(ppx);
 		T yp = T(fy) * p[1] / p[2] + T(ppy);
 
-		//FIXME Distortion
-		//cout << "ox: " << observed_x << " px: " << xp << " oy: " << observed_y << " py: " << yp << endl;
+		//Distortion is not considered in this case
+		//because D400's default distortion coefficients are all 0.
 		
 		residuals[0] = xp - T(observed_x);
 		residuals[1] = yp - T(observed_y);

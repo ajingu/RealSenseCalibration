@@ -92,11 +92,11 @@ int main(int argc, char** argv)
 	for (int i = 0; i < bal_problem.num_observations(); i++)
 	{
 		Point2d image_point(observations[2 * i + 0], observations[2 * i + 1]);
-		image_points.emplace_back(image_point);
+		image_points[i] = image_point;
 
 		double* object_point_ptr = bal_problem.mutable_point_for_observation(i);
 		Point3d object_point(object_point_ptr[0], object_point_ptr[1], object_point_ptr[2]);
-		object_points.emplace_back(object_point);
+		object_points[i] = object_point;
 	}
 
 	double* camera_vec_ptr = bal_problem.mutable_cameras();
@@ -120,8 +120,8 @@ int main(int argc, char** argv)
 		drawMarker(reprojection_image, reprojected_points[i], Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
 	}
 
-	putText(reprojection_image, "BLUE : Marker Points (t+1)", cv::Point{ 10,20 }, cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 0, 0), 2);
-	putText(reprojection_image, "GREEN : Reprojected Points (t -> t+1)", cv::Point{ 10,45 }, cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0, 255, 0), 2);
+	putText(reprojection_image, "BLUE : Marker Points (t+1)", cv::Point{ 10,20 }, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 0, 0), 2);
+	putText(reprojection_image, "GREEN : Reprojected Points After Bundle Adjustment (t -> t+1)", cv::Point{ 10,45 }, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 2);
 
 	imshow("Reprojection", reprojection_image);
 	
