@@ -21,7 +21,7 @@ int main()
 	});
 
 	for (auto v : indices)
-		std::cout << v << " ";
+		std::cout << v << " "; //4, 1, 0, 2, 3
 	std::cout << std::endl;
 
 	while (true)
