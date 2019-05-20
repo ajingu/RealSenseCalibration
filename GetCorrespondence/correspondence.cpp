@@ -138,7 +138,7 @@ int main()
 	getMarkerGeometry(geometry_file_path, marker_transforms_from_base);
 
 	//get marker points
-	Ptr<cv::aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::DICT_4X4_100);
+	Ptr<aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::DICT_4X4_100);
 	map<string, Mat> images[TIMES];
 	map<int, Transform> marker_transforms_from_camera;
 	Vec3d base_rvec, base_tvec;
@@ -192,6 +192,11 @@ int main()
 				{
 					base_rvec = tmp_rvec_from_camera;
 					base_tvec = tmp_tvec_from_camera;
+
+					cout << "BASE_RVEC: " << base_rvec << " BASE_TVEC: " << base_tvec << endl;
+					Mat tmp_base_rot;
+					Rodrigues(base_rvec, tmp_base_rot);
+					cout << "BASE_RVEC:" << endl << tmp_base_rot << endl;
 				}
 				else
 				{
@@ -203,9 +208,14 @@ int main()
 					Rodrigues(tmp_rvec_from_camera, tmp_rot_from_camera);
 					Rodrigues(tmp_rvec_from_base, tmp_rot_from_base);
 
-					Rodrigues(tmp_rot_from_base.t()*tmp_rot_from_camera, base_rvec);
-					tmp_t_mat = tmp_rot_from_base.t()*Mat(tmp_tvec_from_camera) - tmp_tvec_from_base;
+					Rodrigues(tmp_rot_from_camera * tmp_rot_from_base.t(), base_rvec);
+					tmp_t_mat = tmp_rot_from_camera * tmp_rot_from_base.t() * Mat(-tmp_tvec_from_base) + Mat(tmp_tvec_from_camera);
 					base_tvec = tmp_t_mat;
+
+					cout << "BASE_RVEC: " << base_rvec << " BASE_TVEC: " << base_tvec << endl;
+					Mat tmp_base_rot;
+					Rodrigues(base_rvec, tmp_base_rot);
+					cout << "BASE_RVEC:" << endl << tmp_base_rot << endl;
 				}
 				
 				//Define All Marker Transform
@@ -215,16 +225,18 @@ int main()
 					Transform marker_transform_from_base = marker_transforms_from_base[marker_ids[i]];
 					Vec3d rvec_from_base = marker_transform_from_base.rvec;
 					Vec3d tvec_from_base = marker_transform_from_base.tvec;
-
+					
 					Mat rot_from_base, base_rot_from_camera, t_mat;
 				    Vec3d rvec_from_camera, tvec_from_camera;
 					Rodrigues(rvec_from_base, rot_from_base);
 					Rodrigues(base_rvec, base_rot_from_camera);
 
-					Rodrigues(rot_from_base*base_rot_from_camera, rvec_from_camera);
-					t_mat = rot_from_base * Mat(base_tvec) + Mat(tvec_from_base);
+					Rodrigues(base_rot_from_camera * rot_from_base, rvec_from_camera);
+					t_mat = base_rot_from_camera * Mat(tvec_from_base) + Mat(base_tvec);
 					tvec_from_camera = t_mat;
 					marker_transforms_from_camera[marker_ids[i]] = Transform{ rvec_from_camera, tvec_from_camera };
+
+					cout << "MARKER " << marker_ids[i] << " RVEC: " << rvec_from_camera << " TVEC: " << tvec_from_camera << endl;
 				}
 			}
 			
@@ -258,11 +270,27 @@ int main()
 		Rodrigues(camera_rvecs[i], camera_rot);
 		cout << "R" << endl << camera_rot << endl;
 		cout << "T" << endl << camera_tvecs[i] << endl;
+
+		//Reprojection Check
+		vector<Point2d> reprojected_points;
+		projectPoints(object_points[i], camera_rvecs[i], camera_tvecs[i], camera_intrinsics_map[serial_numbers[i]], dist_coeffs_map[serial_numbers[i]], reprojected_points);
+
+		Mat reprojection_image = images[0][serial_numbers[i]];
+		for (int point_index = 0; point_index < reprojected_points.size(); point_index++)
+		{
+			drawMarker(reprojection_image, image_points[i][point_index], Scalar(255, 0, 0), MARKER_CROSS, 10, 2);
+			drawMarker(reprojection_image, reprojected_points[point_index], Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
+		}
+
+		putText(reprojection_image, "BLUE : Marker Points (t+1)", Point{ 10,20 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
+		putText(reprojection_image, "GREEN : Reprojected Points (t -> t+1)", Point{ 10,45 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(0, 255, 0), 2);
+
+		imshow("Reprojection", reprojection_image);
 	}
 	
 	while (true)
 	{
-		char key = (char)cv::waitKey(10);
+		char key = (char)waitKey(10);
 		if (key == 27)
 			break;
 	}
