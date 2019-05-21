@@ -20,9 +20,10 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{E24063E8-C72F-49B8-8572-A05160115C1B}</ProjectGuid>
-    <RootNamespace>ReprojectionError</RootNamespace>
+    <ProjectGuid>{3410E374-CAE6-43DA-B206-CD1405360A78}</ProjectGuid>
+    <RootNamespace>Common_TakeIRImage</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>Common_TakeIRImage</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

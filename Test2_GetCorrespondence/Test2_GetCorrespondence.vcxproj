@@ -20,9 +20,10 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{6B095C8A-275C-499A-B5B8-274F1D1CB66E}</ProjectGuid>
-    <RootNamespace>BundleAdjustment</RootNamespace>
+    <ProjectGuid>{270CC640-7953-42DD-951F-B2CDC39BDB48}</ProjectGuid>
+    <RootNamespace>Test2_GetCorrespondence</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>Test2_GetCorrespondence</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -116,8 +117,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bundle_adjustmenter.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="correspondence.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

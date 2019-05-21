@@ -3,21 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GetCameraIntrinsics", "GetCameraIntrinsics\GetCameraIntrinsics.vcxproj", "{FF845C28-81B1-42B1-8AE5-C40618733432}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common_GetCameraIntrinsics", "Common_GetCameraIntrinsics\Common_GetCameraIntrinsics.vcxproj", "{FF845C28-81B1-42B1-8AE5-C40618733432}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TakeIRImage", "TakeIRImage\TakeIRImage.vcxproj", "{3410E374-CAE6-43DA-B206-CD1405360A78}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common_TakeIRImage", "Common_TakeIRImage\Common_TakeIRImage.vcxproj", "{3410E374-CAE6-43DA-B206-CD1405360A78}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CreateMarker", "CreateMarker\CreateMarker.vcxproj", "{2A741FC1-CB1B-47D2-8C88-E1E65D9C369D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common_CreateMarker", "Common_CreateMarker\Common_CreateMarker.vcxproj", "{2A741FC1-CB1B-47D2-8C88-E1E65D9C369D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiCamVisualOdometry", "MultiCamVisualOdometry\MultiCamVisualOdometry.vcxproj", "{57A6753B-93D0-4BF9-B2DA-2184D76B4226}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common_MultiCamVisualOdometry", "Common_MultiCamVisualOdometry\Common_MultiCamVisualOdometry.vcxproj", "{57A6753B-93D0-4BF9-B2DA-2184D76B4226}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgSort", "ArgSort\ArgSort.vcxproj", "{E862AFB5-145E-420D-801B-BFE3DC03CC7E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common_ArgSort", "Common_ArgSort\Common_ArgSort.vcxproj", "{E862AFB5-145E-420D-801B-BFE3DC03CC7E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReprojectionError", "ReprojectionError\ReprojectionError.vcxproj", "{E24063E8-C72F-49B8-8572-A05160115C1B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test1_ReprojectionError", "Test1_ReprojectionError\Test1_ReprojectionError.vcxproj", "{E24063E8-C72F-49B8-8572-A05160115C1B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BundleAdjustment", "BundleAdjustment\BundleAdjustment.vcxproj", "{6B095C8A-275C-499A-B5B8-274F1D1CB66E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test1_BundleAdjustment", "Test1_BundleAdjustment\Test1_BundleAdjustment.vcxproj", "{6B095C8A-275C-499A-B5B8-274F1D1CB66E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GetCorrespondence", "GetCorrespondence\GetCorrespondence.vcxproj", "{270CC640-7953-42DD-951F-B2CDC39BDB48}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test2_GetCorrespondence", "Test2_GetCorrespondence\Test2_GetCorrespondence.vcxproj", "{270CC640-7953-42DD-951F-B2CDC39BDB48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
