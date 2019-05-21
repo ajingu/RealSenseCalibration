@@ -16,6 +16,12 @@ using namespace cv;
 #define MARKERS 4
 #define BASE_MARKER_ID 2
 
+struct Observation
+{
+	int marker_id;
+	vector<Point2f> points;
+};
+
 struct Transform 
 {
 	Vec3d rvec, tvec;
@@ -24,7 +30,6 @@ struct Transform
 vector<Point3d> getCornersInCameraWorld(double side, Vec3d rvec, Vec3d tvec)
 {
 	double half_side = side / 2;
-
 
 	// compute rot_mat
 	Mat rot_mat;
@@ -126,6 +131,11 @@ int main()
 {
 	string serial_numbers[CAMERAS] = { "819612072493", "825312072048" };
 	int marker_ids[MARKERS] = { 2, 4, 8, 23 };
+	map<int, int> marker_idx_map;
+	for (int i = 0; i < MARKERS; i++)
+	{
+		marker_idx_map[marker_ids[i]] = i;
+	}
 	
 	//intrinsics
 	map<string, Mat> camera_intrinsics_map;
@@ -143,7 +153,8 @@ int main()
 	map<int, Transform> marker_transforms_from_camera;
 	Vec3d base_rvecs[TIMES], base_tvecs[TIMES];
 	vector<Point3d> object_points[CAMERAS];
-	vector<Point2f> image_points[CAMERAS], image_points_per_time[TIMES][CAMERAS];
+	vector<Point2f> image_points[CAMERAS];
+	vector<Observation> observations[TIMES][CAMERAS];
 
 	for (int time_idx = 0; time_idx < TIMES; time_idx++)
 	{
@@ -242,15 +253,22 @@ int main()
 			
 			for (int i = 0; i < ids.size(); i++)
 			{
+				Observation observation;
+				observation.marker_id = ids[indices[i]];
+
 				for (int j = 0; j < 4; j++)
 				{
 					image_points[camera_idx].emplace_back(corners[indices[i]][j]);
-					image_points_per_time[time_idx][camera_idx].emplace_back(corners[indices[i]][j]);
+					observation.points.emplace_back(corners[indices[i]][j]);
 				}
-				cout << "Time: " << time_idx << ", CAMERA: " << camera_idx << ", MARKER_ID: " << ids[indices[i]] << endl;
+
+				observations[time_idx][camera_idx].emplace_back(observation);
+
 				Transform marker_transform = marker_transforms_from_camera[ids[indices[i]]];
 				vector<Point3d> corners3D = getCornersInCameraWorld(MARKER_SIDE, marker_transform.rvec, marker_transform.tvec);
 				object_points[camera_idx].insert(object_points[camera_idx].end(), corners3D.begin(), corners3D.end());
+
+				cout << "Time: " << time_idx << ", CAMERA: " << camera_idx << ", MARKER_ID: " << ids[indices[i]] << endl;
 			}
 		}
 	}
@@ -292,27 +310,33 @@ int main()
 	//output
 	ofstream fout;
 	fout.open("../Common/Correspondence/test2/correspondence_test.txt");
-	fout << TIMES << " " << CAMERAS  << endl;
+	fout << TIMES << " " << CAMERAS  << " " << MARKERS;
+	int observations_num = 0;
 	for (int time_idx = 0; time_idx < TIMES; time_idx++)
 	{
-		fout << time_idx;
-
 		for (int camera_idx = 0; camera_idx < CAMERAS; camera_idx++)
 		{
-			fout << " " << image_points_per_time[time_idx][camera_idx].size();
+			observations_num += observations[time_idx][camera_idx].size();
 		}
-
-		fout << endl;
 	}
+	fout << " " << observations_num << endl;
+	
 	for (int time_idx = 0; time_idx < TIMES; time_idx++)
 	{
 		for (int camera_idx = 0; camera_idx < CAMERAS; camera_idx++)
 		{
-			int points_num = image_points_per_time[time_idx][camera_idx].size();
-			for (int i = 0; i < points_num; i++)
+			for (int observation_idx = 0; observation_idx < observations[time_idx][camera_idx].size(); observation_idx++)
 			{
-				Point2f point = image_points_per_time[time_idx][camera_idx][i];
-				fout << time_idx << " " << camera_idx << " " << point.x << " " << point.y << endl;
+				Observation observation = observations[time_idx][camera_idx][observation_idx];
+				fout << time_idx << " " << camera_idx << " " << marker_idx_map[observation.marker_id];
+
+				for (int i = 0; i < 4; i++)
+				{
+					Point2f point = observation.points[i];
+					fout << " " << point.x << " " << point.y;
+				}
+
+				fout << endl;
 			}
 		}
 	}
