@@ -4,6 +4,7 @@
 
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
+//#include <glog/logging.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -33,6 +34,21 @@ public:
 		return observations_;
 	}
 
+	int num_parameters() const
+	{
+		return num_parameters_;
+	}
+
+	const double* parameters() const
+	{
+		return parameters_;
+	}
+
+	int camera_idx(int observation_id) const
+	{
+		return camera_index_[observation_id];
+	}
+
 	double* mutable_camera_transform_from_base_camera(int observation_idx)
 	{
 		return parameters_ + 6 * camera_index_[observation_idx];
@@ -40,12 +56,12 @@ public:
 
 	double* mutable_base_marker_transform_from_base_camera(int observation_idx)
 	{
-		return parameters_ + 6 * num_cameras_ + time_index_[observation_idx];
+		return parameters_ + 6 * num_cameras_ + 6 * time_index_[observation_idx];
 	}
 
 	double* mutable_marker_transform_from_base_marker(int observation_idx)
 	{
-		return parameters_ + 6 * num_cameras_ + 6 * num_times_ + marker_index_[observation_idx];
+		return parameters_ + 6 * num_cameras_ + 6 * num_times_ + 6 * marker_index_[observation_idx];
 	}
 	
 	bool loadFile(const char* filename)
@@ -60,7 +76,7 @@ public:
 		fscanfOrDie(fptr, "%d", &num_cameras_);
 		fscanfOrDie(fptr, "%d", &num_markers_);
 		fscanfOrDie(fptr, "%d", &num_observations_);
-		
+
 		time_index_ = new int[num_observations_];
 		camera_index_ = new int[num_observations_];
 		marker_index_ = new int[num_observations_];
@@ -77,7 +93,7 @@ public:
 			
 			for (int j = 0; j < 8; j++)
 			{
-				fscanfOrDie(fptr, "%lf", observations_ + j);
+				fscanfOrDie(fptr, "%lf", observations_ + 8 * i + j);
 			}
 		}
 
@@ -128,7 +144,7 @@ struct ReprojectionError
 
 		half_marker_side = marker_side / 2;
 	}
-	//RegionsAlias(‚Ç‚Á‚©‚Ìƒƒ‚ƒŠ‚ª‚©‚Ô‚Á‚Ä‚µ‚Ü‚Á‚Ä‚¢‚é)
+	
 	template <typename T>
 	bool operator()(const T* const camera_transform, const T* const base_marker_transform_from_camera, const T* const marker_transform_from_base_marker, T* residuals) const
 	{
@@ -149,6 +165,7 @@ struct ReprojectionError
 		for (int i = 0; i < 4; i++)
 		{
 			T p[3];
+			
 
 			//coordinate on base marker
 			AngleAxisRotatePoint(marker_transform_from_base_marker, marker_points[i], p);

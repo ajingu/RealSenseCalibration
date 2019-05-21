@@ -51,8 +51,9 @@ int main(int argc, char** argv)
 
 
 	//Bundle Adjustment
+	
 	google::InitGoogleLogging(argv[0]);
-
+	
 	BALProblem bal_problem;
 	if (!bal_problem.loadFile("../Common/Correspondence/test2/correspondence_test.txt"))
 	{
@@ -64,69 +65,78 @@ int main(int argc, char** argv)
 
 	Problem problem;
 
+	/*
 	for (int i = 0; i < bal_problem.num_observations(); i++)
 	{
+		cout << "camera_transform";
+		double* a = bal_problem.mutable_camera_transform_from_base_camera(i);
+		for (int j = 0; j < 6; j++)
+		{
+			cout << " " << a[j];
+		}
+		cout << endl;
+
+		cout << "base_marker";
+		double* b = bal_problem.mutable_base_marker_transform_from_base_camera(i);
+		for (int j = 0; j < 6; j++)
+		{
+			cout << " " << b[j];
+		}
+		cout << endl;
+
+		cout << "marker";
+		double* c = bal_problem.mutable_marker_transform_from_base_marker(i);
+		for (int j = 0; j < 6; j++)
+		{
+			cout << " " << c[j];
+		}
+		cout << endl;
+	}*/
+	/* parameter‚Í‚¿‚á‚ñ‚Æ“Ç‚Ýž‚Ü‚ê‚Ä‚é
+	cout << "parameters: ";
+	for (int i = 0; i < bal_problem.num_parameters(); i++)
+	{
+		cout << " " << bal_problem.parameters()[i];
+	}
+	cout << endl;*/
+	
+	for (int i = 0; i < bal_problem.num_observations(); i++)
+	{
+		int camera_idx = bal_problem.camera_idx(i);
+		
 		CostFunction* cost_function =
 			ReprojectionError::create(
 				observations + 8 * i,
 				MARKER_SIDE,
-				camera_intrinsics_map[serial_numbers[1]],
-				dist_coeffs_map[serial_numbers[1]]);
-
+				camera_intrinsics_map[serial_numbers[camera_idx]],
+				dist_coeffs_map[serial_numbers[camera_idx]]);
+		
 		problem.AddResidualBlock(cost_function,
 			NULL,
 			bal_problem.mutable_camera_transform_from_base_camera(i),
 			bal_problem.mutable_base_marker_transform_from_base_camera(i),
 			bal_problem.mutable_marker_transform_from_base_marker(i));
 	}
-
+	
 	Solver::Options options;
 	options.linear_solver_type = DENSE_SCHUR;
 	options.minimizer_progress_to_stdout = true;
 	Solver::Summary summary;
 	Solve(options, &problem, &summary);
 	cout << summary.FullReport() << endl;
-
+	
 	//Reprojection Check
-	/*
-	vector<Point2d> image_points(bal_problem.num_observations()), reprojected_points;
-	vector<Point3d> object_points(bal_problem.num_observations());
-	for (int i = 0; i < bal_problem.num_observations(); i++)
-	{
-		Point2d image_point(observations[2 * i + 0], observations[2 * i + 1]);
-		image_points[i] = image_point;
-
-		double* object_point_ptr = bal_problem.mutable_point_for_observation(i);
-		Point3d object_point(object_point_ptr[0], object_point_ptr[1], object_point_ptr[2]);
-		object_points[i] = object_point;
-	}
-
-	double* camera_vec_ptr = bal_problem.mutable_cameras();
-	Mat camera_rvec = (Mat_<double>(3, 1) << camera_vec_ptr[0], camera_vec_ptr[1], camera_vec_ptr[2]);
-	Mat camera_tvec = (Mat_<double>(3, 1) << camera_vec_ptr[3], camera_vec_ptr[4], camera_vec_ptr[5]);
-
-	projectPoints(object_points, camera_rvec, camera_tvec, camera_intrinsics_map[serial_numbers[1]], dist_coeffs_map[serial_numbers[1]], reprojected_points);
-
+	double* camera_transform_ptr = bal_problem.mutable_camera_transform_from_base_camera(1);
+	Mat camera_rvec = (Mat_<double>(3, 1) << camera_transform_ptr[0], camera_transform_ptr[1], camera_transform_ptr[2]);
+	Mat camera_tvec = (Mat_<double>(3, 1) << camera_transform_ptr[3], camera_transform_ptr[4], camera_transform_ptr[5]);
 	Mat camera_rot;
 	Rodrigues(camera_rvec, camera_rot);
-	camera_rot = camera_rot.t();
-	camera_tvec = -camera_rot * camera_tvec;
-	cout << "R: " << endl << camera_rot << endl;
-	cout << "t: " << endl << camera_tvec << endl;
 
-
-	Mat reprojection_image = images[serial_numbers[1]];
-	for (int i = 0; i < reprojected_points.size(); i++)
-	{
-		drawMarker(reprojection_image, image_points[i], Scalar(255, 0, 0), MARKER_CROSS, 10, 2);
-		drawMarker(reprojection_image, reprojected_points[i], Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
-	}
-
-	putText(reprojection_image, "BLUE : Marker Points (t+1)", cv::Point{ 10,20 }, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 0, 0), 2);
-	putText(reprojection_image, "GREEN : Reprojected Points After Bundle Adjustment (t -> t+1)", cv::Point{ 10,45 }, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 2);
-
-	imshow("Reprojection", reprojection_image);
-	*/
+	cout << "R:" << endl;
+	cout << camera_rot << endl;
+	cout << "t:" << endl;
+	cout << camera_tvec << endl;
+	
 	while (true)
 	{
 		char key = (char)cv::waitKey(10);
