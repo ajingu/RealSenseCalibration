@@ -141,19 +141,19 @@ int main()
 	Ptr<aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::DICT_4X4_100);
 	map<string, Mat> images[TIMES];
 	map<int, Transform> marker_transforms_from_camera;
-	Vec3d base_rvec, base_tvec;
+	Vec3d base_rvecs[TIMES], base_tvecs[TIMES];
 	vector<Point3d> object_points[CAMERAS];
-	vector<Point2f> image_points[CAMERAS];
+	vector<Point2f> image_points[CAMERAS], image_points_per_time[TIMES][CAMERAS];
 
-	for (int time_id = 0; time_id < TIMES; time_id++)
+	for (int time_idx = 0; time_idx < TIMES; time_idx++)
 	{
-		for (int sn_id = 0; sn_id < CAMERAS; sn_id++)
+		for (int camera_idx = 0; camera_idx < CAMERAS; camera_idx++)
 		{
-			string sn = serial_numbers[sn_id];
+			string sn = serial_numbers[camera_idx];
 
-			string file_name = "../Common/Image/IR/" + time_id + (string)"/" + sn + ".png";
+			string file_name = "../Common/Image/IR/" + time_idx + (string)"/" + sn + ".png";
 			Mat image = imread(file_name);
-			images[time_id][sn] = image;
+			images[time_idx][sn] = image;
 			vector<int> ids;
 			vector<vector<Point2f>> corners;
 
@@ -182,7 +182,7 @@ int main()
 			});
 
 			//Define Marker Transform from Camera 
-			if (sn_id == 0)
+			if (camera_idx == 0)
 			{
 				int tmp_marker_id = ids[indices[0]];
 				Vec3d tmp_rvec_from_camera = rvecs[indices[0]];
@@ -190,12 +190,12 @@ int main()
 
 				if (tmp_marker_id == BASE_MARKER_ID)
 				{
-					base_rvec = tmp_rvec_from_camera;
-					base_tvec = tmp_tvec_from_camera;
+					base_rvecs[time_idx] = tmp_rvec_from_camera;
+					base_tvecs[time_idx] = tmp_tvec_from_camera;
 
-					cout << "BASE_RVEC: " << base_rvec << " BASE_TVEC: " << base_tvec << endl;
+					cout << "BASE_RVEC: " << base_rvecs[time_idx] << " BASE_TVEC: " << base_tvecs[time_idx] << endl;
 					Mat tmp_base_rot;
-					Rodrigues(base_rvec, tmp_base_rot);
+					Rodrigues(base_rvecs[time_idx], tmp_base_rot);
 					cout << "BASE_RVEC:" << endl << tmp_base_rot << endl;
 				}
 				else
@@ -208,18 +208,18 @@ int main()
 					Rodrigues(tmp_rvec_from_camera, tmp_rot_from_camera);
 					Rodrigues(tmp_rvec_from_base, tmp_rot_from_base);
 
-					Rodrigues(tmp_rot_from_camera * tmp_rot_from_base.t(), base_rvec);
+					Rodrigues(tmp_rot_from_camera * tmp_rot_from_base.t(), base_rvecs[time_idx]);
 					tmp_t_mat = tmp_rot_from_camera * tmp_rot_from_base.t() * Mat(-tmp_tvec_from_base) + Mat(tmp_tvec_from_camera);
-					base_tvec = tmp_t_mat;
+					base_tvecs[time_idx] = tmp_t_mat;
 
-					cout << "BASE_RVEC: " << base_rvec << " BASE_TVEC: " << base_tvec << endl;
+					cout << "BASE_RVEC: " << base_rvecs[time_idx] << " BASE_TVEC: " << base_tvecs[time_idx] << endl;
 					Mat tmp_base_rot;
-					Rodrigues(base_rvec, tmp_base_rot);
+					Rodrigues(base_rvecs[time_idx], tmp_base_rot);
 					cout << "BASE_RVEC:" << endl << tmp_base_rot << endl;
 				}
 				
 				//Define All Marker Transform
-				marker_transforms_from_camera[marker_ids[0]] = Transform{ base_rvec, base_tvec };
+				marker_transforms_from_camera[marker_ids[0]] = Transform{ base_rvecs[time_idx], base_tvecs[time_idx] };
 				for (int i = 1; i < MARKERS; i++)
 				{
 					Transform marker_transform_from_base = marker_transforms_from_base[marker_ids[i]];
@@ -229,10 +229,10 @@ int main()
 					Mat rot_from_base, base_rot_from_camera, t_mat;
 				    Vec3d rvec_from_camera, tvec_from_camera;
 					Rodrigues(rvec_from_base, rot_from_base);
-					Rodrigues(base_rvec, base_rot_from_camera);
+					Rodrigues(base_rvecs[time_idx], base_rot_from_camera);
 
 					Rodrigues(base_rot_from_camera * rot_from_base, rvec_from_camera);
-					t_mat = base_rot_from_camera * Mat(tvec_from_base) + Mat(base_tvec);
+					t_mat = base_rot_from_camera * Mat(tvec_from_base) + Mat(base_tvecs[time_idx]);
 					tvec_from_camera = t_mat;
 					marker_transforms_from_camera[marker_ids[i]] = Transform{ rvec_from_camera, tvec_from_camera };
 
@@ -244,12 +244,13 @@ int main()
 			{
 				for (int j = 0; j < 4; j++)
 				{
-					image_points[sn_id].push_back(corners[indices[i]][j]);
+					image_points[camera_idx].emplace_back(corners[indices[i]][j]);
+					image_points_per_time[time_idx][camera_idx].emplace_back(corners[indices[i]][j]);
 				}
-				cout << "Time: " << time_id << ", SN_ID: " << sn_id << ", MARKER_ID: " << ids[indices[i]] << endl;
+				cout << "Time: " << time_idx << ", CAMERA: " << camera_idx << ", MARKER_ID: " << ids[indices[i]] << endl;
 				Transform marker_transform = marker_transforms_from_camera[ids[indices[i]]];
 				vector<Point3d> corners3D = getCornersInCameraWorld(MARKER_SIDE, marker_transform.rvec, marker_transform.tvec);
-				object_points[sn_id].insert(object_points[sn_id].end(), corners3D.begin(), corners3D.end());
+				object_points[camera_idx].insert(object_points[camera_idx].end(), corners3D.begin(), corners3D.end());
 			}
 		}
 	}
@@ -287,6 +288,60 @@ int main()
 
 		imshow("Reprojection", reprojection_image);
 	}
+
+	//output
+	ofstream fout;
+	fout.open("../Common/Correspondence/test2/correspondence_test.txt");
+	fout << TIMES << " " << CAMERAS  << endl;
+	for (int time_idx = 0; time_idx < TIMES; time_idx++)
+	{
+		fout << time_idx;
+
+		for (int camera_idx = 0; camera_idx < CAMERAS; camera_idx++)
+		{
+			fout << " " << image_points_per_time[time_idx][camera_idx].size();
+		}
+
+		fout << endl;
+	}
+	for (int time_idx = 0; time_idx < TIMES; time_idx++)
+	{
+		for (int camera_idx = 0; camera_idx < CAMERAS; camera_idx++)
+		{
+			int points_num = image_points_per_time[time_idx][camera_idx].size();
+			for (int i = 0; i < points_num; i++)
+			{
+				Point2f point = image_points_per_time[time_idx][camera_idx][i];
+				fout << time_idx << " " << camera_idx << " " << point.x << " " << point.y << endl;
+			}
+		}
+	}
+	for (int i = 0; i < CAMERAS; i++)
+	{
+		Vec3d camera_rvec = camera_rvecs[i];
+		Vec3d camera_tvec = camera_tvecs[i];
+
+		fout << camera_rvec[0] << " " << camera_rvec[1] << " " << camera_rvec[2] << " ";
+		fout << camera_tvec[0] << " " << camera_tvec[1] << " " << camera_tvec[2] << endl;
+	}
+	for (int i = 0; i < TIMES; i++)
+	{
+		Vec3d base_rvec = base_rvecs[i];
+		Vec3d base_tvec = base_tvecs[i];
+
+		fout << base_rvec[0] << " " << base_rvec[1] << " " << base_rvec[2] << " ";
+		fout << base_tvec[0] << " " << base_tvec[1] << " " << base_tvec[2] << endl;
+	}
+	for (int i = 0; i < MARKERS; i++)
+	{
+		Vec3d rvec_from_base =  marker_transforms_from_base[marker_ids[i]].rvec;
+		Vec3d tvec_from_base =  marker_transforms_from_base[marker_ids[i]].tvec;
+
+		fout << rvec_from_base[0] << " " << rvec_from_base[1] << " " << rvec_from_base[2] << " ";
+		fout << tvec_from_base[0] << " " << tvec_from_base[1] << " " << tvec_from_base[2] << endl;
+	}
+
+	fout.close();
 	
 	while (true)
 	{
