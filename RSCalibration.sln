@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSCalibration", "RSCalibration\RSCalibration.vcxproj", "{B5DA9D12-AD52-4DFC-B638-E3410F942363}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GetCameraIntrinsics", "GetCameraIntrinsics\GetCameraIntrinsics.vcxproj", "{FF845C28-81B1-42B1-8AE5-C40618733432}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TakeIRImage", "TakeIRImage\TakeIRImage.vcxproj", "{3410E374-CAE6-43DA-B206-CD1405360A78}"
@@ -16,8 +14,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArgSort", "ArgSort\ArgSort.vcxproj", "{E862AFB5-145E-420D-801B-BFE3DC03CC7E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReprojectionError", "ReprojectionError\ReprojectionError.vcxproj", "{E24063E8-C72F-49B8-8572-A05160115C1B}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Intersection", "Intersection\Intersection.vcxproj", "{C93995AA-BFC8-4441-8924-08B2ADCDBBE7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BundleAdjustment", "BundleAdjustment\BundleAdjustment.vcxproj", "{6B095C8A-275C-499A-B5B8-274F1D1CB66E}"
 EndProject
@@ -31,14 +27,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B5DA9D12-AD52-4DFC-B638-E3410F942363}.Debug|x64.ActiveCfg = Debug|x64
-		{B5DA9D12-AD52-4DFC-B638-E3410F942363}.Debug|x64.Build.0 = Debug|x64
-		{B5DA9D12-AD52-4DFC-B638-E3410F942363}.Debug|x86.ActiveCfg = Debug|Win32
-		{B5DA9D12-AD52-4DFC-B638-E3410F942363}.Debug|x86.Build.0 = Debug|Win32
-		{B5DA9D12-AD52-4DFC-B638-E3410F942363}.Release|x64.ActiveCfg = Release|x64
-		{B5DA9D12-AD52-4DFC-B638-E3410F942363}.Release|x64.Build.0 = Release|x64
-		{B5DA9D12-AD52-4DFC-B638-E3410F942363}.Release|x86.ActiveCfg = Release|Win32
-		{B5DA9D12-AD52-4DFC-B638-E3410F942363}.Release|x86.Build.0 = Release|Win32
 		{FF845C28-81B1-42B1-8AE5-C40618733432}.Debug|x64.ActiveCfg = Debug|x64
 		{FF845C28-81B1-42B1-8AE5-C40618733432}.Debug|x64.Build.0 = Debug|x64
 		{FF845C28-81B1-42B1-8AE5-C40618733432}.Debug|x86.ActiveCfg = Debug|Win32
@@ -87,14 +75,6 @@ Global
 		{E24063E8-C72F-49B8-8572-A05160115C1B}.Release|x64.Build.0 = Release|x64
 		{E24063E8-C72F-49B8-8572-A05160115C1B}.Release|x86.ActiveCfg = Release|Win32
 		{E24063E8-C72F-49B8-8572-A05160115C1B}.Release|x86.Build.0 = Release|Win32
-		{C93995AA-BFC8-4441-8924-08B2ADCDBBE7}.Debug|x64.ActiveCfg = Debug|x64
-		{C93995AA-BFC8-4441-8924-08B2ADCDBBE7}.Debug|x64.Build.0 = Debug|x64
-		{C93995AA-BFC8-4441-8924-08B2ADCDBBE7}.Debug|x86.ActiveCfg = Debug|Win32
-		{C93995AA-BFC8-4441-8924-08B2ADCDBBE7}.Debug|x86.Build.0 = Debug|Win32
-		{C93995AA-BFC8-4441-8924-08B2ADCDBBE7}.Release|x64.ActiveCfg = Release|x64
-		{C93995AA-BFC8-4441-8924-08B2ADCDBBE7}.Release|x64.Build.0 = Release|x64
-		{C93995AA-BFC8-4441-8924-08B2ADCDBBE7}.Release|x86.ActiveCfg = Release|Win32
-		{C93995AA-BFC8-4441-8924-08B2ADCDBBE7}.Release|x86.Build.0 = Release|Win32
 		{6B095C8A-275C-499A-B5B8-274F1D1CB66E}.Debug|x64.ActiveCfg = Debug|x64
 		{6B095C8A-275C-499A-B5B8-274F1D1CB66E}.Debug|x64.Build.0 = Debug|x64
 		{6B095C8A-275C-499A-B5B8-274F1D1CB66E}.Debug|x86.ActiveCfg = Debug|Win32
