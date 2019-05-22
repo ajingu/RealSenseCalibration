@@ -64,58 +64,40 @@ int main(int argc, char** argv)
 	const double* const observations = bal_problem.observations();
 
 	Problem problem;
-
-	/*
-	for (int i = 0; i < bal_problem.num_observations(); i++)
-	{
-		cout << "camera_transform";
-		double* a = bal_problem.mutable_camera_transform_from_base_camera(i);
-		for (int j = 0; j < 6; j++)
-		{
-			cout << " " << a[j];
-		}
-		cout << endl;
-
-		cout << "base_marker";
-		double* b = bal_problem.mutable_base_marker_transform_from_base_camera(i);
-		for (int j = 0; j < 6; j++)
-		{
-			cout << " " << b[j];
-		}
-		cout << endl;
-
-		cout << "marker";
-		double* c = bal_problem.mutable_marker_transform_from_base_marker(i);
-		for (int j = 0; j < 6; j++)
-		{
-			cout << " " << c[j];
-		}
-		cout << endl;
-	}*/
-	/* parameter‚Í‚¿‚á‚ñ‚Æ“Ç‚Ýž‚Ü‚ê‚Ä‚é
-	cout << "parameters: ";
-	for (int i = 0; i < bal_problem.num_parameters(); i++)
-	{
-		cout << " " << bal_problem.parameters()[i];
-	}
-	cout << endl;*/
 	
-	for (int i = 0; i < bal_problem.num_observations(); i++)
+	for (int i = 4; i < bal_problem.num_observations(); i++)
 	{
 		int camera_idx = bal_problem.camera_idx(i);
 		
-		CostFunction* cost_function =
-			ReprojectionError::create(
+		CostFunction* target_camera_cost_function =
+			TargetCameraReprojectionError::create(
 				observations + 8 * i,
 				MARKER_SIDE,
 				camera_intrinsics_map[serial_numbers[camera_idx]],
 				dist_coeffs_map[serial_numbers[camera_idx]]);
+
 		
-		problem.AddResidualBlock(cost_function,
+		
+		problem.AddResidualBlock(target_camera_cost_function,
 			NULL,
 			bal_problem.mutable_camera_transform_from_base_camera(i),
 			bal_problem.mutable_base_marker_transform_from_base_camera(i),
 			bal_problem.mutable_marker_transform_from_base_marker(i));
+
+		for (int j = 0; j < 4; j++)
+		{
+			CostFunction* base_camera_cost_function =
+				BaseCameraReprojectionError::create(
+					observations + 8 * j,
+					MARKER_SIDE,
+					camera_intrinsics_map[serial_numbers[0]],
+					dist_coeffs_map[serial_numbers[0]]);
+
+			problem.AddResidualBlock(base_camera_cost_function,
+				NULL,
+				bal_problem.mutable_base_marker_transform_from_base_camera(j),
+				bal_problem.mutable_marker_transform_from_base_marker(j));
+		}
 	}
 	
 	Solver::Options options;
@@ -126,16 +108,21 @@ int main(int argc, char** argv)
 	cout << summary.FullReport() << endl;
 	
 	//Reprojection Check
-	double* camera_transform_ptr = bal_problem.mutable_camera_transform_from_base_camera(1);
-	Mat camera_rvec = (Mat_<double>(3, 1) << camera_transform_ptr[0], camera_transform_ptr[1], camera_transform_ptr[2]);
-	Mat camera_tvec = (Mat_<double>(3, 1) << camera_transform_ptr[3], camera_transform_ptr[4], camera_transform_ptr[5]);
-	Mat camera_rot;
-	Rodrigues(camera_rvec, camera_rot);
+	for (int i = 0; i < 2; i++)
+	{
+		double* camera_transform_ptr = bal_problem.mutable_camera_transform_from_base_camera(i*4);
+		Mat camera_rvec = (Mat_<double>(3, 1) << camera_transform_ptr[0], camera_transform_ptr[1], camera_transform_ptr[2]);
+		Mat camera_tvec = (Mat_<double>(3, 1) << camera_transform_ptr[3], camera_transform_ptr[4], camera_transform_ptr[5]);
+		Mat camera_rot;
+		Rodrigues(camera_rvec, camera_rot);
 
-	cout << "R:" << endl;
-	cout << camera_rot << endl;
-	cout << "t:" << endl;
-	cout << camera_tvec << endl;
+		cout << "Camera " << i << endl;
+		cout << "R:" << endl;
+		cout << camera_rot.t() << endl;
+		cout << "t:" << endl;
+		cout << -camera_rot.t() * camera_tvec << endl;
+	}
+	
 	
 	while (true)
 	{

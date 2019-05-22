@@ -61,7 +61,6 @@ public:
 		};
 		FscanfOrDie(fptr, "%d", &num_cameras_);
 		FscanfOrDie(fptr, "%d", &num_points_);
-		//FscanfOrDie(fptr, "%d", &num_observations_);
 		num_observations_ = num_points_;
 		point_index_ = new int[num_observations_];
 		camera_index_ = new int[num_observations_];
@@ -75,7 +74,7 @@ public:
 			FscanfOrDie(fptr, "%d", point_index_ + i);
 			for (int j = 0; j < 2; ++j) 
 			{
-				FscanfOrDie(fptr, "%lf", observations_ + 2 * i + j); //double
+				FscanfOrDie(fptr, "%lf", observations_ + 2 * i + j);
 			}
 		}
 		for (int i = 0; i < num_parameters_; ++i) 
