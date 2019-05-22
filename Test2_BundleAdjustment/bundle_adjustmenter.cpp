@@ -4,7 +4,6 @@
 
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
-//#include <glog/logging.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -32,6 +31,11 @@ public:
 	const double* observations() const
 	{
 		return observations_;
+	}
+
+	int num_base_camera_observations() const
+	{
+		return num_base_camera_observations_;
 	}
 
 	int num_parameters() const
@@ -95,6 +99,11 @@ public:
 			{
 				fscanfOrDie(fptr, "%lf", observations_ + 8 * i + j);
 			}
+			
+			if (camera_index_[i] == 0)
+			{
+				num_base_camera_observations_++;
+			}
 		}
 
 		for (int i = 0; i < num_parameters_; i++)
@@ -120,6 +129,7 @@ private:
 	int num_markers_;
 	int num_observations_;
 	int num_parameters_;
+	int num_base_camera_observations_ = 0;
 	int* time_index_;
 	int* camera_index_;
 	int* marker_index_;

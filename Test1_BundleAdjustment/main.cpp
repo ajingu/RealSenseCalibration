@@ -86,7 +86,7 @@ int main(int argc, char** argv)
 	Solve(options, &problem, &summary);
 	cout << summary.FullReport() << endl;
 	
-
+	//Reprojection Check
 	vector<Point2d> image_points(bal_problem.num_observations()),reprojected_points;
 	vector<Point3d> object_points(bal_problem.num_observations());
 	for (int i = 0; i < bal_problem.num_observations(); i++)

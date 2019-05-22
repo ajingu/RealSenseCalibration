@@ -64,8 +64,10 @@ int main(int argc, char** argv)
 	const double* const observations = bal_problem.observations();
 
 	Problem problem;
-	
-	for (int i = 4; i < bal_problem.num_observations(); i++)
+
+	int num_base_camera_observation = bal_problem.num_base_camera_observations();
+	cout << "NUM_BASE: " << num_base_camera_observation << endl;
+	for (int i = num_base_camera_observation; i < bal_problem.num_observations(); i++)
 	{
 		int camera_idx = bal_problem.camera_idx(i);
 		
@@ -84,7 +86,7 @@ int main(int argc, char** argv)
 			bal_problem.mutable_base_marker_transform_from_base_camera(i),
 			bal_problem.mutable_marker_transform_from_base_marker(i));
 
-		for (int j = 0; j < 4; j++)
+		for (int j = 0; j < num_base_camera_observation; j++)
 		{
 			CostFunction* base_camera_cost_function =
 				BaseCameraReprojectionError::create(
@@ -126,7 +128,7 @@ int main(int argc, char** argv)
 	
 	while (true)
 	{
-		char key = (char)cv::waitKey(10);
+		char key = (char)waitKey(10);
 		if (key == 27)
 			break;
 	}
