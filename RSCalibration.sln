@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test2_GetCorrespondence", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test2_BundleAdjustment", "Test2_BundleAdjustment\Test2_BundleAdjustment.vcxproj", "{C6FD7E4F-D7FF-432C-8F21-D0D9A40755E2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test2_ReprojectionCheck", "Test2_ReprojectionCheck\Test2_ReprojectionCheck.vcxproj", "{50029422-E295-4F9C-AA18-DCD44424D92F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -101,6 +103,14 @@ Global
 		{C6FD7E4F-D7FF-432C-8F21-D0D9A40755E2}.Release|x64.Build.0 = Release|x64
 		{C6FD7E4F-D7FF-432C-8F21-D0D9A40755E2}.Release|x86.ActiveCfg = Release|Win32
 		{C6FD7E4F-D7FF-432C-8F21-D0D9A40755E2}.Release|x86.Build.0 = Release|Win32
+		{50029422-E295-4F9C-AA18-DCD44424D92F}.Debug|x64.ActiveCfg = Debug|x64
+		{50029422-E295-4F9C-AA18-DCD44424D92F}.Debug|x64.Build.0 = Debug|x64
+		{50029422-E295-4F9C-AA18-DCD44424D92F}.Debug|x86.ActiveCfg = Debug|Win32
+		{50029422-E295-4F9C-AA18-DCD44424D92F}.Debug|x86.Build.0 = Debug|Win32
+		{50029422-E295-4F9C-AA18-DCD44424D92F}.Release|x64.ActiveCfg = Release|x64
+		{50029422-E295-4F9C-AA18-DCD44424D92F}.Release|x64.Build.0 = Release|x64
+		{50029422-E295-4F9C-AA18-DCD44424D92F}.Release|x86.ActiveCfg = Release|Win32
+		{50029422-E295-4F9C-AA18-DCD44424D92F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

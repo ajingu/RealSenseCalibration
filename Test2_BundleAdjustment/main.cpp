@@ -110,6 +110,12 @@ int main(int argc, char** argv)
 	cout << summary.FullReport() << endl;
 	
 	//Reprojection Check
+	FileStorage fs("../Common/Correspondence/test2/Camera_Transform.xml", FileStorage::WRITE);
+	if (!fs.isOpened()) {
+		cerr << "File can not be opened." << endl;
+		return -1;
+	}
+
 	for (int i = 0; i < 2; i++)
 	{
 		double* camera_transform_ptr = bal_problem.mutable_camera_transform_from_base_camera(i*4);
@@ -123,7 +129,12 @@ int main(int argc, char** argv)
 		cout << camera_rot.t() << endl;
 		cout << "t:" << endl;
 		cout << -camera_rot.t() * camera_tvec << endl;
+
+		fs << "R" + to_string(i) << camera_rvec;
+		fs << "t" + to_string(i) << camera_tvec;
 	}
+
+	fs.release();
 	
 	
 	while (true)
