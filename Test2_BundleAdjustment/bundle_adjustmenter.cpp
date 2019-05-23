@@ -71,7 +71,7 @@ public:
 
 	void getPoint3dCoordinates(vector<Point3d>& points)
 	{
-		for (int i = num_base_camera_observations(); i < num_observations(); i++)
+		for (int i = 0; i < num_observations(); i++)
 		{
 			double* base_marker_transform = mutable_base_marker_transform_from_base_camera(i);
 			double* marker_transform = mutable_marker_transform_from_base_marker(i);

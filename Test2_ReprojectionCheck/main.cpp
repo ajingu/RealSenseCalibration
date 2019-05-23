@@ -11,9 +11,46 @@
 #include <opencv2/aruco.hpp>
 
 #define MARKER_SIDE 0.032
+#define CAMERAS 2
 
 using namespace std;
 using namespace cv;
+
+vector<Point3d> getCornersInCameraWorld(double side, Vec3d rvec, Vec3d tvec)
+{
+	double half_side = side / 2;
+
+	// compute rot_mat
+	Mat rot_mat;
+	Rodrigues(rvec, rot_mat);
+
+	// transpose of rot_mat for easy columns extraction
+	Mat rot_mat_t = rot_mat.t();
+
+	// the two E-O and F-O vectors
+	double * tmp = rot_mat_t.ptr<double>(0);
+	Point3d camWorldE(tmp[0] * half_side,
+		tmp[1] * half_side,
+		tmp[2] * half_side);
+
+	tmp = rot_mat_t.ptr<double>(1);
+	Point3d camWorldF(tmp[0] * half_side,
+		tmp[1] * half_side,
+		tmp[2] * half_side);
+
+	// convert tvec to point
+	Point3d tvec_3d(tvec[0], tvec[1], tvec[2]);
+
+	// return vector:
+	vector<Point3d> ret(4, tvec_3d);
+
+	ret[0] += -camWorldE + camWorldF; //top left
+	ret[1] += camWorldE + camWorldF; //top right
+	ret[2] += camWorldE - camWorldF; //bottom right
+	ret[3] += -camWorldE - camWorldF; //bottom left
+
+	return ret;
+}
 
 int main()
 {
@@ -51,13 +88,14 @@ int main()
 	//get marker points
 	Ptr<aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(aruco::DICT_4X4_100);
 	//vector<Point3d> object_points;
-	vector<Point2f> image_points;
+	vector<Point2f> image_points[CAMERAS];
 
 	map<string, Mat> images;
 
 
-	for_each(begin(serial_numbers), end(serial_numbers), [&dictionary, /*&object_points,*/ &image_points, &serial_numbers, &camera_matrix_map, &dist_coeffs_map, &images](string sn)
+	for(int camera_idx=0; camera_idx<CAMERAS; camera_idx++)
 	{
+		string sn = serial_numbers[camera_idx];
 		string file_name = "../Common/Image/IR/" + sn + ".png";
 		Mat image = imread(file_name);
 		images[sn] = image;
@@ -98,16 +136,19 @@ int main()
 
 			for (int i = 0; i < ids.size(); i++)
 			{
-				if (sn == serial_numbers[1])
+				if (sn == serial_numbers[0])
 				{
-					for (int j = 0; j < 4; j++)
-					{
-						image_points.push_back(corners[indices[i]][j]);
-					}
+					//vector<Point3d> corners3D = getCornersInCameraWorld(MARKER_SIDE, rvecs[indices[i]], tvecs[indices[i]]);
+					//object_points.insert(object_points.end(), corners3D.begin(), corners3D.end());
+				}
+
+				for (int j = 0; j < 4; j++)
+				{
+					image_points[camera_idx].push_back(corners[indices[i]][j]);
 				}
 			}
 		}
-	});
+	}
 
 	Mat camera_rvec, camera_rot, camera_tvec;
 
@@ -118,10 +159,7 @@ int main()
 		return -1;
 	}
 
-	fs2["R1"] >> camera_rvec;
-	fs2["t1"] >> camera_tvec;
-
-	fs2.release();
+	
 
 	vector<Point3d> object_points;
 	FILE* fptr = fopen("../Common/Correspondence/test2/point3d.txt", "r");
@@ -131,36 +169,45 @@ int main()
 		exit(1);
 	};
 
-	int num_points;
-	fscanf(fptr, "%d", &num_points);
+	int num_points_all;
+	fscanf(fptr, "%d", &num_points_all);
+	int num_points_per_camera = num_points_all / 2;
 
-	for (int i = 0; i < num_points; i++)
+	for (int camera_idx = 0; camera_idx < CAMERAS; camera_idx++)
 	{
-		Point3d point;
-		fscanf(fptr, "%lf", &point.x);
-		fscanf(fptr, "%lf", &point.y);
-		fscanf(fptr, "%lf", &point.z);
-		object_points.emplace_back(point);
+		object_points.clear();
+
+		for (int i = 0; i < num_points_per_camera; i++)
+		{
+			Point3d point;
+			fscanf(fptr, "%lf", &point.x);
+			fscanf(fptr, "%lf", &point.y);
+			fscanf(fptr, "%lf", &point.z);
+			object_points.emplace_back(point);
+		}
+
+		fs2["R" + to_string(camera_idx)] >> camera_rvec;
+		fs2["t" + to_string(camera_idx)] >> camera_tvec;
+
+		vector<Point2d> reprojected_points;
+		projectPoints(object_points, camera_rvec, camera_tvec, camera_matrix_map[serial_numbers[camera_idx]], dist_coeffs_map[serial_numbers[camera_idx]], reprojected_points);
+
+		//visualization
+		Mat reprojection_image = images[serial_numbers[camera_idx]];
+		for (int i = 0; i < reprojected_points.size(); i++)
+		{
+			drawMarker(reprojection_image, image_points[camera_idx][i], Scalar(255, 0, 0), MARKER_CROSS, 10, 2);
+			drawMarker(reprojection_image, reprojected_points[i], Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
+		}
+
+		putText(reprojection_image, "BLUE : Marker Points (t+1)", Point{ 10,20 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
+		putText(reprojection_image, "GREEN : Reprojected Points (t -> t+1)", Point{ 10,45 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(0, 255, 0), 2);
+
+		imshow("Reprojection: " + serial_numbers[camera_idx], reprojection_image);
 	}
+
 	fclose(fptr);
-
-
-	vector<Point2d> reprojected_points;
-	projectPoints(object_points, camera_rvec, camera_tvec, camera_matrix_map[serial_numbers[1]], dist_coeffs_map[serial_numbers[1]], reprojected_points);
-
-	//visualization
-	Mat reprojection_image = images[serial_numbers[1]];
-	for (int i = 0; i < reprojected_points.size(); i++)
-	{
-		drawMarker(reprojection_image, image_points[i], Scalar(255, 0, 0), MARKER_CROSS, 10, 2);
-		drawMarker(reprojection_image, reprojected_points[i], Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
-	}
-
-	putText(reprojection_image, "BLUE : Marker Points (t+1)", Point{ 10,20 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
-	putText(reprojection_image, "GREEN : Reprojected Points (t -> t+1)", Point{ 10,45 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(0, 255, 0), 2);
-
-	imshow("Reprojection", reprojection_image);
-
+	fs2.release();
 
 	while (true)
 	{
