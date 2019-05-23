@@ -11,6 +11,7 @@ using namespace std;
 using namespace cv;
 using namespace ceres;
 
+
 class BALProblem
 {
 public:
@@ -66,6 +67,49 @@ public:
 	double* mutable_marker_transform_from_base_marker(int observation_idx)
 	{
 		return parameters_ + 6 * num_cameras_ + 6 * num_times_ + 6 * marker_index_[observation_idx];
+	}
+
+	void getPoint3dCoordinates(vector<Point3d>& points)
+	{
+		for (int i = num_base_camera_observations(); i < num_observations(); i++)
+		{
+			double* base_marker_transform = mutable_base_marker_transform_from_base_camera(i);
+			double* marker_transform = mutable_marker_transform_from_base_marker(i);
+
+			double marker_points[4][3];
+			double half_marker_side = 0.016;
+			marker_points[0][0] = -half_marker_side;
+			marker_points[0][1] = half_marker_side;
+			marker_points[0][2] = 0;
+			marker_points[1][0] = half_marker_side;
+			marker_points[1][1] = half_marker_side;
+			marker_points[1][2] = 0;
+			marker_points[2][0] = half_marker_side;
+			marker_points[2][1] = -half_marker_side;
+			marker_points[2][2] = 0;
+			marker_points[3][0] = -half_marker_side;
+			marker_points[3][1] = -half_marker_side;
+			marker_points[3][2] = 0;
+
+			for (int j = 0; j < 4; j++)
+			{
+				double p[3];
+				AngleAxisRotatePoint(marker_transform, marker_points[j], p);
+				p[0] += marker_transform[3];
+				p[1] += marker_transform[4];
+				p[2] += marker_transform[5];
+
+				AngleAxisRotatePoint(base_marker_transform, p, p);
+				p[0] += base_marker_transform[3];
+				p[1] += base_marker_transform[4];
+				p[2] += base_marker_transform[5];
+
+				Point3d point(p[0], p[1], p[2]);
+
+				points.emplace_back(point);
+			}
+			
+		}
 	}
 	
 	bool loadFile(const char* filename)
@@ -237,6 +281,7 @@ struct BaseCameraReprojectionError
 	bool operator()(const T* const base_marker_transform_from_camera, const T* const marker_transform_from_base_marker, T* residuals) const
 	{
 		T marker_points[4][3];
+		
 		marker_points[0][0] = T(-half_marker_side);
 		marker_points[0][1] = T(half_marker_side);
 		marker_points[0][2] = T(0);

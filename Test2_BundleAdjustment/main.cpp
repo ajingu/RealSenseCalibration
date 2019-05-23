@@ -66,7 +66,7 @@ int main(int argc, char** argv)
 	Problem problem;
 
 	int num_base_camera_observation = bal_problem.num_base_camera_observations();
-	cout << "NUM_BASE: " << num_base_camera_observation << endl;
+	//cout << "NUM_BASE: " << num_base_camera_observation << endl;
 	for (int i = num_base_camera_observation; i < bal_problem.num_observations(); i++)
 	{
 		int camera_idx = bal_problem.camera_idx(i);
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 			bal_problem.mutable_camera_transform_from_base_camera(i),
 			bal_problem.mutable_base_marker_transform_from_base_camera(i),
 			bal_problem.mutable_marker_transform_from_base_marker(i));
-
+		
 		for (int j = 0; j < num_base_camera_observation; j++)
 		{
 			CostFunction* base_camera_cost_function =
@@ -135,6 +135,20 @@ int main(int argc, char** argv)
 	}
 
 	fs.release();
+
+	vector<Point3d> object_points;
+	bal_problem.getPoint3dCoordinates(object_points);
+	
+	ofstream fout;
+	fout.open("../Common/Correspondence/test2/point3d.txt");
+	fout << object_points.size() << endl;
+	for (int i = 0; i < object_points.size(); i++)
+	{
+		Point3d point = object_points[i];
+		fout << point.x << " " << point.y << " " << point.z << endl;
+	}
+	fout.close();
+
 	
 	
 	while (true)
