@@ -28,8 +28,8 @@ int main()
 		auto ir_left_stream = m_pipeline_profile.get_stream(RS2_STREAM_INFRARED).as<rs2::video_stream_profile>();
 		auto intrinsics = ir_left_stream.get_intrinsics();
 		
-		cv::FileStorage fs(intrinsics_root_path + serial_number + ".xml",
-			cv::FileStorage::WRITE);
+		FileStorage fs(intrinsics_root_path + serial_number + ".xml",
+			FileStorage::WRITE);
 		if (!fs.isOpened()) {
 		    cerr << "File can not be opened." << std::endl;
 			return -1;
@@ -55,7 +55,7 @@ int main()
 
 		fs.release();
 
-		cv::FileStorage fs2(intrinsics_root_path + serial_number + ".xml", cv::FileStorage::READ);
+		FileStorage fs2(intrinsics_root_path + serial_number + ".xml", FileStorage::READ);
 		if (!fs2.isOpened()) {
 			std::cout << "File can not be opened." << std::endl;
 			return -1;
@@ -74,7 +74,7 @@ int main()
 
 	while (true)
 	{
-		char key = (char)cv::waitKey(10);
+		char key = (char)waitKey(10);
 		if (key == 27)
 			break;
 	}

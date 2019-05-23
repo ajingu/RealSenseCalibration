@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 			bal_problem.mutable_camera_transform_from_base_camera(i),
 			bal_problem.mutable_base_marker_transform_from_base_camera(i),
 			bal_problem.mutable_marker_transform_from_base_marker(i));
-		/*
+		
 		for (int j = 0; j < num_base_camera_observation; j++)
 		{
 			CostFunction* base_camera_cost_function =
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 				NULL,
 				bal_problem.mutable_base_marker_transform_from_base_camera(j),
 				bal_problem.mutable_marker_transform_from_base_marker(j));
-		}*/
+		}
 	}
 	
 	Solver::Options options;

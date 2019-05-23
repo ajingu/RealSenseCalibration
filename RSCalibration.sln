@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test2_BundleAdjustment", "T
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test2_ReprojectionCheck", "Test2_ReprojectionCheck\Test2_ReprojectionCheck.vcxproj", "{50029422-E295-4F9C-AA18-DCD44424D92F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test2_TakeSynchoronizedIRImages", "Test2_TakeSynchoronizedIRImages\Test2_TakeSynchoronizedIRImages.vcxproj", "{F95E082C-641E-42C2-B1B0-F36FB87C21D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -111,6 +113,14 @@ Global
 		{50029422-E295-4F9C-AA18-DCD44424D92F}.Release|x64.Build.0 = Release|x64
 		{50029422-E295-4F9C-AA18-DCD44424D92F}.Release|x86.ActiveCfg = Release|Win32
 		{50029422-E295-4F9C-AA18-DCD44424D92F}.Release|x86.Build.0 = Release|Win32
+		{F95E082C-641E-42C2-B1B0-F36FB87C21D0}.Debug|x64.ActiveCfg = Debug|x64
+		{F95E082C-641E-42C2-B1B0-F36FB87C21D0}.Debug|x64.Build.0 = Debug|x64
+		{F95E082C-641E-42C2-B1B0-F36FB87C21D0}.Debug|x86.ActiveCfg = Debug|Win32
+		{F95E082C-641E-42C2-B1B0-F36FB87C21D0}.Debug|x86.Build.0 = Debug|Win32
+		{F95E082C-641E-42C2-B1B0-F36FB87C21D0}.Release|x64.ActiveCfg = Release|x64
+		{F95E082C-641E-42C2-B1B0-F36FB87C21D0}.Release|x64.Build.0 = Release|x64
+		{F95E082C-641E-42C2-B1B0-F36FB87C21D0}.Release|x86.ActiveCfg = Release|Win32
+		{F95E082C-641E-42C2-B1B0-F36FB87C21D0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
