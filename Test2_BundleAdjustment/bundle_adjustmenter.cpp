@@ -7,6 +7,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#define MARKER_SIDE 0.048
+
 using namespace std;
 using namespace cv;
 using namespace ceres;
@@ -22,6 +24,11 @@ public:
 		delete[] marker_index_;
 		delete[] observations_;
 		delete[] parameters_;
+	}
+
+	int num_cameras() const
+	{
+		return num_cameras_;
 	}
 
 	int num_observations() const
@@ -54,6 +61,11 @@ public:
 		return camera_index_[observation_id];
 	}
 
+	double* camera_parameters(int camera_idx)
+	{
+		return parameters_ + 6 * camera_idx;
+	}
+
 	double* mutable_camera_transform_from_base_camera(int observation_idx)
 	{
 		return parameters_ + 6 * camera_index_[observation_idx];
@@ -77,7 +89,7 @@ public:
 			double* marker_transform = mutable_marker_transform_from_base_marker(i);
 
 			double marker_points[4][3];
-			double half_marker_side = 0.016;
+			double half_marker_side = MARKER_SIDE/2;
 			marker_points[0][0] = -half_marker_side;
 			marker_points[0][1] = half_marker_side;
 			marker_points[0][2] = 0;

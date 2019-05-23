@@ -15,7 +15,8 @@ void saveIntrinsics(rs2_intrinsics& intrinsics, string serial_number)
 	FileStorage fs("../Common/Calibration/Intrinsics/" + serial_number + ".xml",
 		FileStorage::WRITE);
 	if (!fs.isOpened()) {
-		cerr << "File can not be opened." << std::endl;
+		cerr << "unable to open intrinsics file." << std::endl;
+		system("PAUSE");
 		exit(-1);
 	}
 

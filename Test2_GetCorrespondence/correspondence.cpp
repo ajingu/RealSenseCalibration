@@ -10,8 +10,8 @@
 using namespace std;
 using namespace cv;
 
-#define MARKER_SIDE 0.032
-#define TIMES 1
+#define MARKER_SIDE 0.048
+#define TIMES 4
 #define CAMERAS 2
 #define MARKERS 4
 #define BASE_MARKER_ID 2
@@ -72,7 +72,8 @@ void getIntrinsics(string* serial_numbers, map<string, Mat>& camera_intrinsics_m
 		FileStorage fs(file_name, FileStorage::READ);
 		if (!fs.isOpened())
 		{
-			cerr << "File can not be opened." << endl;
+			cerr << "unable to open intrinsics file." << endl;
+			system("PAUSE");
 			exit(1);
 		}
 
@@ -95,7 +96,8 @@ void getMarkerGeometry(const char* file_path, map<int, Transform>& marker_transf
 	FILE* fptr = fopen(file_path, "r");
 	if (fptr == NULL)
 	{
-		cerr << "ERROR: unable to open file " << "\n";
+		cerr << "ERROR: unable to open geometry file " << "\n";
+		system("PAUSE");
 		exit(1);
 	};
 
@@ -162,8 +164,15 @@ int main()
 		{
 			string sn = serial_numbers[camera_idx];
 
-			string file_name = "../Common/Image/IR/" + time_idx + (string)"/" + sn + ".png";
+			string file_name = "../Common/Image/IR/main/" + to_string(time_idx) + (string)"/" + sn + ".png";
 			Mat image = imread(file_name);
+			if (image.empty())
+			{
+				cout << file_name << endl;
+				cerr << "Image is empty." << endl;
+				system("PAUSE");
+				exit(-1);
+			}
 			images[time_idx][sn] = image;
 			vector<int> ids;
 			vector<vector<Point2f>> corners;
@@ -182,7 +191,7 @@ int main()
 			{
 				aruco::drawAxis(image_copy, camera_matrix, dist_coeffs, rvecs[i], tvecs[i], 0.01);
 			}
-			imshow(sn, image_copy);
+			imshow(sn + (string)" " + to_string(time_idx), image_copy);
 	        
 			//sort ids
 			vector<int> indices(ids.size());
@@ -250,7 +259,7 @@ int main()
 					cout << "MARKER " << marker_ids[i] << " RVEC: " << rvec_from_camera << " TVEC: " << tvec_from_camera << endl;
 				}
 			}
-			
+
 			for (int i = 0; i < ids.size(); i++)
 			{
 				Observation observation;
@@ -280,6 +289,13 @@ int main()
 
 	for (int i = 1; i < CAMERAS; i++)
 	{
+		if (image_points[i].size() < 4)
+		{
+			cerr << "The correspondence points are too few." << endl ;
+			system("PAUSE");
+			exit(-1);
+		}
+
 		solvePnP(
 			object_points[i], image_points[i],
 			camera_intrinsics_map[serial_numbers[i]], dist_coeffs_map[serial_numbers[i]],
@@ -290,28 +306,16 @@ int main()
 		cout << "R" << endl << camera_rot << endl;
 		cout << "T" << endl << camera_tvecs[i] << endl;
 
-		//Reprojection Check
-		vector<Point2d> reprojected_points;
-		projectPoints(object_points[i], camera_rvecs[i], camera_tvecs[i], camera_intrinsics_map[serial_numbers[i]], dist_coeffs_map[serial_numbers[i]], reprojected_points);
-
-		Mat reprojection_image = images[0][serial_numbers[i]];
-		for (int point_index = 0; point_index < reprojected_points.size(); point_index++)
-		{
-			drawMarker(reprojection_image, image_points[i][point_index], Scalar(255, 0, 0), MARKER_CROSS, 10, 2);
-			drawMarker(reprojection_image, reprojected_points[point_index], Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
-		}
-
-		putText(reprojection_image, "BLUE : Marker Points (t+1)", Point{ 10,20 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
-		putText(reprojection_image, "GREEN : Reprojected Points (t -> t+1)", Point{ 10,45 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(0, 255, 0), 2);
-
-		imshow("Reprojection", reprojection_image);
+		
 	}
 
 	//output
 	ofstream fout;
 	fout.open("../Common/Correspondence/test2/correspondence_test.txt");
 	fout << TIMES << " " << CAMERAS  << " " << MARKERS;
+	
 	int observations_num = 0;
+
 	for (int time_idx = 0; time_idx < TIMES; time_idx++)
 	{
 		for (int camera_idx = 0; camera_idx < CAMERAS; camera_idx++)
@@ -320,6 +324,18 @@ int main()
 		}
 	}
 	fout << " " << observations_num << endl;
+
+	for (int time_idx = 0; time_idx < TIMES; time_idx++)
+	{
+		fout << time_idx;
+
+		for (int camera_idx = 0; camera_idx < CAMERAS; camera_idx++)
+		{
+			fout << " " << observations[time_idx][camera_idx].size();
+		}
+
+		fout << endl;
+	}
 	
 	for (int time_idx = 0; time_idx < TIMES; time_idx++)
 	{
@@ -366,6 +382,42 @@ int main()
 	}
 
 	fout.close();
+
+
+	//Reprojection Check
+	for (int time_idx = 0; time_idx < TIMES; time_idx++)
+	{
+		for (int camera_idx = 0; camera_idx < CAMERAS; camera_idx++)
+		{
+			int last_offset = 0; 
+			for (int i = 0; i < time_idx; i++)
+			{
+				last_offset += observations[i][camera_idx].size() * 4;
+			}
+			int current_offset = observations[time_idx][camera_idx].size()*4;
+			
+			vector<Point3d> object_points_per_time(observations[time_idx][camera_idx].size()*4);
+			copy(object_points[camera_idx].begin()+last_offset, object_points[camera_idx].begin()+last_offset+current_offset, object_points_per_time.begin());
+
+			vector<Point2d> image_points_per_time(observations[time_idx][camera_idx].size()*4);
+			copy(image_points[camera_idx].begin() + last_offset, image_points[camera_idx].begin() + last_offset +current_offset, image_points_per_time.begin());
+
+			vector<Point2d> reprojected_points;
+			projectPoints(object_points_per_time, camera_rvecs[camera_idx], camera_tvecs[camera_idx], camera_intrinsics_map[serial_numbers[camera_idx]], dist_coeffs_map[serial_numbers[camera_idx]], reprojected_points);
+
+			Mat reprojection_image = images[time_idx][serial_numbers[camera_idx]];
+			for (int point_index = 0; point_index < reprojected_points.size(); point_index++)
+			{
+				drawMarker(reprojection_image, image_points_per_time[point_index], Scalar(255, 0, 0), MARKER_CROSS, 10, 2);
+				drawMarker(reprojection_image, reprojected_points[point_index], Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
+			}
+
+			putText(reprojection_image, "BLUE : Marker Points (t+1)", Point{ 10,20 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
+			putText(reprojection_image, "GREEN : Reprojected Points (t -> t+1)", Point{ 10,45 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(0, 255, 0), 2);
+
+			imshow("Reprojection " + serial_numbers[camera_idx] + " " + to_string(time_idx), reprojection_image);
+		}
+	}
 	
 	while (true)
 	{

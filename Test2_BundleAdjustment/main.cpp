@@ -9,7 +9,7 @@
 
 #include "bundle_adjustmenter.cpp"
 
-#define MARKER_SIDE 0.032
+#define MARKER_SIDE 0.048
 
 using namespace std;
 using namespace cv;
@@ -27,14 +27,22 @@ int main(int argc, char** argv)
 	{
 		string file_name = "../Common/Image/IR/" + sn + ".png";
 		Mat image = imread(file_name);
+		if (image.empty())
+		{
+			cout << file_name << endl;
+			cerr << "Image is empty." << endl;
+			system("PAUSE");
+			exit(-1);
+		}
 		images[sn] = image;
 
 		string intrinsics_file_name = "../Common/Calibration/Intrinsics/" + sn + ".xml";
 		FileStorage fs(intrinsics_file_name, FileStorage::READ);
 		if (!fs.isOpened())
 		{
-			cout << "File can not be opened." << endl;
-			return -1;
+			cout << "unable to open intrinsics file" << endl;
+			system("PAUSE");
+			exit(1);
 		}
 
 		Mat A, dist_coeffs;
@@ -112,13 +120,14 @@ int main(int argc, char** argv)
 	//Reprojection Check
 	FileStorage fs("../Common/Correspondence/test2/Camera_Transform.xml", FileStorage::WRITE);
 	if (!fs.isOpened()) {
-		cerr << "File can not be opened." << endl;
-		return -1;
+		cerr << "unable to open Camera_Transform.xml" << endl;
+		system("PAUSE");
+		exit(1);
 	}
 
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < bal_problem.num_cameras(); i++)
 	{
-		double* camera_transform_ptr = bal_problem.mutable_camera_transform_from_base_camera(i*4);
+		double* camera_transform_ptr = bal_problem.camera_parameters(i);
 		Mat camera_rvec = (Mat_<double>(3, 1) << camera_transform_ptr[0], camera_transform_ptr[1], camera_transform_ptr[2]);
 		Mat camera_tvec = (Mat_<double>(3, 1) << camera_transform_ptr[3], camera_transform_ptr[4], camera_transform_ptr[5]);
 		Mat camera_rot;
