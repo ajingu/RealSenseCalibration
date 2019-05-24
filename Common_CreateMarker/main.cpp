@@ -20,7 +20,12 @@ int main()
 	string file_name = "../Common/Image/Marker/4X4_100_" + to_string(id) + ".png";
 	imwrite(file_name, markerImage);
 
-	cv::waitKey(0);
+	while (true)
+	{
+		char key = (char)waitKey(10);
+		if (key == 27)
+			break;
+	}
 	
 	return 0;
 }
