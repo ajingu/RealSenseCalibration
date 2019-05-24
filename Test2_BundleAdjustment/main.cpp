@@ -65,48 +65,46 @@ int main(int argc, char** argv)
 	BALProblem bal_problem;
 	if (!bal_problem.loadFile("../Common/Correspondence/test2/correspondence_test.txt"))
 	{
-		cerr << "ERROR: unable to open file " << "\n";
-		return 1;
+		cerr << "unable to open correspondence file " << "\n";
+		system("PAUSE");
+		exit(1);
 	}
 	
 	const double* const observations = bal_problem.observations();
-
 	Problem problem;
 
-	int num_base_camera_observation = bal_problem.num_base_camera_observations();
-	//cout << "NUM_BASE: " << num_base_camera_observation << endl;
-	for (int i = num_base_camera_observation; i < bal_problem.num_observations(); i++)
+	for (int i = 0; i < bal_problem.num_observations(); i++)
 	{
 		int camera_idx = bal_problem.camera_idx(i);
 		
-		CostFunction* target_camera_cost_function =
-			TargetCameraReprojectionError::create(
-				observations + 8 * i,
-				MARKER_SIDE,
-				camera_intrinsics_map[serial_numbers[camera_idx]],
-				dist_coeffs_map[serial_numbers[camera_idx]]);
-
-		
-		
-		problem.AddResidualBlock(target_camera_cost_function,
-			NULL,
-			bal_problem.mutable_camera_transform_from_base_camera(i),
-			bal_problem.mutable_base_marker_transform_from_base_camera(i),
-			bal_problem.mutable_marker_transform_from_base_marker(i));
-		
-		for (int j = 0; j < num_base_camera_observation; j++)
+		if (camera_idx == 0)
 		{
 			CostFunction* base_camera_cost_function =
 				BaseCameraReprojectionError::create(
-					observations + 8 * j,
+					observations + 8 * i,
 					MARKER_SIDE,
 					camera_intrinsics_map[serial_numbers[0]],
 					dist_coeffs_map[serial_numbers[0]]);
 
 			problem.AddResidualBlock(base_camera_cost_function,
 				NULL,
-				bal_problem.mutable_base_marker_transform_from_base_camera(j),
-				bal_problem.mutable_marker_transform_from_base_marker(j));
+				bal_problem.mutable_base_marker_transform_from_base_camera(i),
+				bal_problem.mutable_marker_transform_from_base_marker(i));
+		}
+		else
+		{
+			CostFunction* target_camera_cost_function =
+				TargetCameraReprojectionError::create(
+					observations + 8 * i,
+					MARKER_SIDE,
+					camera_intrinsics_map[serial_numbers[camera_idx]],
+					dist_coeffs_map[serial_numbers[camera_idx]]);
+
+			problem.AddResidualBlock(target_camera_cost_function,
+				NULL,
+				bal_problem.mutable_camera_transform_from_base_camera(i),
+				bal_problem.mutable_base_marker_transform_from_base_camera(i),
+				bal_problem.mutable_marker_transform_from_base_marker(i));
 		}
 	}
 	

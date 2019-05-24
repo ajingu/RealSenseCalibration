@@ -24,6 +24,11 @@ public:
 		delete[] marker_index_;
 		delete[] observations_;
 		delete[] parameters_;
+
+		for (int i = 0; i < num_times_; i++) {
+			delete[] num_observations_per_time_camera_[i];
+		}
+		delete[] num_observations_per_time_camera_;
 	}
 
 	int num_cameras() const
@@ -39,11 +44,6 @@ public:
 	const double* observations() const
 	{
 		return observations_;
-	}
-
-	int num_base_camera_observations() const
-	{
-		return num_base_camera_observations_;
 	}
 
 	int num_parameters() const
@@ -141,9 +141,25 @@ public:
 		camera_index_ = new int[num_observations_];
 		marker_index_ = new int[num_observations_];
 		observations_ = new double[8 * num_observations_];
+		num_observations_per_time_camera_ = new int*[num_times_];
+		for (int i = 0; i < num_times_; i++)
+		{
+			num_observations_per_time_camera_[i] = new int[num_cameras_];
+		}
 		
 		num_parameters_ = 6 * num_cameras_ + 6 * num_times_ + 6 * num_markers_;
 		parameters_ = new double[num_parameters_];
+
+		for (int time_idx = 0; time_idx < num_times_; time_idx++)
+		{
+			int tmp;
+			fscanfOrDie(fptr, "%d", &tmp);
+
+			for (int camera_idx = 0; camera_idx < num_cameras_; camera_idx++)
+			{
+				fscanfOrDie(fptr, "%d", &num_observations_per_time_camera_[time_idx][camera_idx]);
+			}
+		}
 		
 		for (int i = 0; i < num_observations_; i++)
 		{
@@ -154,11 +170,6 @@ public:
 			for (int j = 0; j < 8; j++)
 			{
 				fscanfOrDie(fptr, "%lf", observations_ + 8 * i + j);
-			}
-			
-			if (camera_index_[i] == 0)
-			{
-				num_base_camera_observations_++;
 			}
 		}
 
@@ -185,10 +196,10 @@ private:
 	int num_markers_;
 	int num_observations_;
 	int num_parameters_;
-	int num_base_camera_observations_ = 0;
 	int* time_index_;
 	int* camera_index_;
 	int* marker_index_;
+	int** num_observations_per_time_camera_;
 	double* observations_;
 	double* parameters_;
 };
