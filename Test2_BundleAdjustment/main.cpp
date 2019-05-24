@@ -18,7 +18,7 @@ using namespace ceres;
 int main(int argc, char** argv)
 {
 	//get intrinsics
-	string serial_numbers[2] = { "819612072493", "825312072048" };
+	string serial_numbers[4] = { "821312061029", "816612062327", "821212062536", "821212061326" };
 	map<string, Mat> camera_intrinsics_map;
 	map<string, Mat> dist_coeffs_map;
 	map<string, Mat> images;

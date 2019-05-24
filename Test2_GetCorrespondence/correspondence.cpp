@@ -12,7 +12,7 @@ using namespace cv;
 
 #define MARKER_SIDE 0.048
 #define TIMES 4
-#define CAMERAS 2
+#define CAMERAS 4
 #define MARKERS 4
 #define BASE_MARKER_ID 2
 
@@ -131,7 +131,7 @@ void getMarkerGeometry(const char* file_path, map<int, Transform>& marker_transf
 
 int main()
 {
-	string serial_numbers[CAMERAS] = { "819612072493", "825312072048" };
+	string serial_numbers[CAMERAS] = { "821312061029", "816612062327", "821212062536", "821212061326" };
 	int marker_ids[MARKERS] = { 2, 4, 8, 23 };
 	map<int, int> marker_idx_map;
 	for (int i = 0; i < MARKERS; i++)

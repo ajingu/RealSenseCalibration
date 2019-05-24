@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test2_TakeSynchoronizedIRIm
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test2_CreateMarkers", "Test2_CreateMarkers\Test2_CreateMarkers.vcxproj", "{2D2260F8-EB59-47CF-9E2E-C8E859E9100D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test2_TakeHongoIRImages", "Test2_TakeHongoIRImages\Test2_TakeHongoIRImages.vcxproj", "{52B6C3FC-6947-407F-AA20-D21C3EA3A8EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -131,6 +133,14 @@ Global
 		{2D2260F8-EB59-47CF-9E2E-C8E859E9100D}.Release|x64.Build.0 = Release|x64
 		{2D2260F8-EB59-47CF-9E2E-C8E859E9100D}.Release|x86.ActiveCfg = Release|Win32
 		{2D2260F8-EB59-47CF-9E2E-C8E859E9100D}.Release|x86.Build.0 = Release|Win32
+		{52B6C3FC-6947-407F-AA20-D21C3EA3A8EE}.Debug|x64.ActiveCfg = Debug|x64
+		{52B6C3FC-6947-407F-AA20-D21C3EA3A8EE}.Debug|x64.Build.0 = Debug|x64
+		{52B6C3FC-6947-407F-AA20-D21C3EA3A8EE}.Debug|x86.ActiveCfg = Debug|Win32
+		{52B6C3FC-6947-407F-AA20-D21C3EA3A8EE}.Debug|x86.Build.0 = Debug|Win32
+		{52B6C3FC-6947-407F-AA20-D21C3EA3A8EE}.Release|x64.ActiveCfg = Release|x64
+		{52B6C3FC-6947-407F-AA20-D21C3EA3A8EE}.Release|x64.Build.0 = Release|x64
+		{52B6C3FC-6947-407F-AA20-D21C3EA3A8EE}.Release|x86.ActiveCfg = Release|Win32
+		{52B6C3FC-6947-407F-AA20-D21C3EA3A8EE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

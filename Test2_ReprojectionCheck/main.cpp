@@ -11,7 +11,7 @@
 #include <opencv2/aruco.hpp>
 
 #define MARKER_SIDE 0.048
-#define CAMERAS 2
+#define CAMERAS 4
 #define TIMES 4
 
 using namespace std;
@@ -56,7 +56,7 @@ vector<Point3d> getCornersInCameraWorld(double side, Vec3d rvec, Vec3d tvec)
 int main()
 {
 	//get intrinsics
-	string serial_numbers[2] = { "819612072493", "825312072048" };
+	string serial_numbers[4] = { "821312061029", "816612062327", "821212062536", "821212061326" };
 	map<string, Mat> camera_matrix_map;
 	map<string, Mat> dist_coeffs_map;
 
