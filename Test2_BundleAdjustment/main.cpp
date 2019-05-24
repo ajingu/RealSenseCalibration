@@ -148,7 +148,16 @@ int main(int argc, char** argv)
 	
 	ofstream fout;
 	fout.open("../Common/Correspondence/test2/point3d.txt");
-	fout << object_points.size() << endl;
+	fout << object_points.size() << " " << bal_problem.num_times() << " " << bal_problem.num_cameras() << endl;
+	for (int time_idx = 0; time_idx < bal_problem.num_times(); time_idx++)
+	{
+		fout << time_idx;
+		for (int camera_idx = 0; camera_idx < bal_problem.num_cameras(); camera_idx++)
+		{
+			fout << " " << bal_problem.num_observations_per_time_camera(time_idx, camera_idx);
+		}
+		fout << endl;
+	}
 	for (int i = 0; i < object_points.size(); i++)
 	{
 		Point3d point = object_points[i];

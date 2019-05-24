@@ -41,6 +41,11 @@ public:
 		return num_observations_;
 	}
 
+	int num_observations_per_time_camera(int time_idx, int camera_idx) const
+	{
+		return num_observations_per_time_camera_[time_idx][camera_idx] * 4;
+	}
+
 	const double* observations() const
 	{
 		return observations_;
@@ -54,6 +59,11 @@ public:
 	const double* parameters() const
 	{
 		return parameters_;
+	}
+
+	int num_times() const
+	{
+		return num_times_;
 	}
 
 	int camera_idx(int observation_id) const
