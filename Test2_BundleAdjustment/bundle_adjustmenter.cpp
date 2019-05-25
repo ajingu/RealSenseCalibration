@@ -7,7 +7,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#define MARKER_SIDE 0.048
+#define MARKER_SIDE 0.015
 
 using namespace std;
 using namespace cv;

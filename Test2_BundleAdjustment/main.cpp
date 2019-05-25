@@ -9,7 +9,7 @@
 
 #include "bundle_adjustmenter.cpp"
 
-#define MARKER_SIDE 0.048
+#define MARKER_SIDE 0.015
 
 using namespace std;
 using namespace cv;
@@ -21,21 +21,9 @@ int main(int argc, char** argv)
 	string serial_numbers[4] = { "821312061029", "816612062327", "821212062536", "821212061326" };
 	map<string, Mat> camera_intrinsics_map;
 	map<string, Mat> dist_coeffs_map;
-	map<string, Mat> images;
 
-	for_each(begin(serial_numbers), end(serial_numbers), [&camera_intrinsics_map, &dist_coeffs_map, &images](string sn)
+	for_each(begin(serial_numbers), end(serial_numbers), [&camera_intrinsics_map, &dist_coeffs_map](string sn)
 	{
-		string file_name = "../Common/Image/IR/" + sn + ".png";
-		Mat image = imread(file_name);
-		if (image.empty())
-		{
-			cout << file_name << endl;
-			cerr << "Image is empty." << endl;
-			system("PAUSE");
-			exit(-1);
-		}
-		images[sn] = image;
-
 		string intrinsics_file_name = "../Common/Calibration/Intrinsics/" + sn + ".xml";
 		FileStorage fs(intrinsics_file_name, FileStorage::READ);
 		if (!fs.isOpened())
@@ -63,7 +51,7 @@ int main(int argc, char** argv)
 	google::InitGoogleLogging(argv[0]);
 	
 	BALProblem bal_problem;
-	if (!bal_problem.loadFile("../Common/Correspondence/test2/correspondence_test.txt"))
+	if (!bal_problem.loadFile("../Common/Correspondence/hongo/correspondence.txt"))
 	{
 		cerr << "unable to open correspondence file " << "\n";
 		system("PAUSE");
@@ -116,7 +104,7 @@ int main(int argc, char** argv)
 	cout << summary.FullReport() << endl;
 	
 	//Reprojection Check
-	FileStorage fs("../Common/Correspondence/test2/Camera_Transform.xml", FileStorage::WRITE);
+	FileStorage fs("../Common/Correspondence/hongo/Camera_Transform.xml", FileStorage::WRITE);
 	if (!fs.isOpened()) {
 		cerr << "unable to open Camera_Transform.xml" << endl;
 		system("PAUSE");
@@ -147,7 +135,7 @@ int main(int argc, char** argv)
 	bal_problem.getPoint3dCoordinates(object_points);
 	
 	ofstream fout;
-	fout.open("../Common/Correspondence/test2/point3d.txt");
+	fout.open("../Common/Correspondence/hongo/point3d.txt");
 	fout << object_points.size() << " " << bal_problem.num_times() << " " << bal_problem.num_cameras() << endl;
 	for (int time_idx = 0; time_idx < bal_problem.num_times(); time_idx++)
 	{

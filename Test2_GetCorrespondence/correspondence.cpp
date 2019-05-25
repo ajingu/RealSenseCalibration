@@ -10,11 +10,11 @@
 using namespace std;
 using namespace cv;
 
-#define MARKER_SIDE 0.048
-#define TIMES 4
+#define MARKER_SIDE 0.015
+#define TIMES 6
 #define CAMERAS 4
-#define MARKERS 4
-#define BASE_MARKER_ID 2
+#define MARKERS 11
+#define BASE_MARKER_ID 0
 
 struct Observation
 {
@@ -132,7 +132,7 @@ void getMarkerGeometry(const char* file_path, map<int, Transform>& marker_transf
 int main()
 {
 	string serial_numbers[CAMERAS] = { "821312061029", "816612062327", "821212062536", "821212061326" };
-	int marker_ids[MARKERS] = { 2, 4, 8, 23 };
+	int marker_ids[MARKERS] = { 0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 23 };
 	map<int, int> marker_idx_map;
 	for (int i = 0; i < MARKERS; i++)
 	{
@@ -145,7 +145,7 @@ int main()
 	getIntrinsics(serial_numbers, camera_intrinsics_map, dist_coeffs_map);
 
 	//geometry
-	const char* geometry_file_path = "../Common/Correspondence/test2/geometry_test.txt";
+	const char* geometry_file_path = "../Common/Correspondence/hongo/marker_geometry.txt";
 	map<int, Transform> marker_transforms_from_base;
 	getMarkerGeometry(geometry_file_path, marker_transforms_from_base);
 
@@ -164,7 +164,7 @@ int main()
 		{
 			string sn = serial_numbers[camera_idx];
 
-			string file_name = "../Common/Image/IR/main/" + to_string(time_idx) + (string)"/" + sn + ".png";
+			string file_name = "../Common/Image/IR/hongo/" + to_string(time_idx) + (string)"/" + sn + ".png";
 			Mat image = imread(file_name);
 			if (image.empty())
 			{
@@ -187,11 +187,12 @@ int main()
 			Mat image_copy;
 			image.copyTo(image_copy);
 			aruco::drawDetectedMarkers(image_copy, corners, ids);
+			/*
 			for (int i = 0; i < ids.size(); i++)
 			{
 				aruco::drawAxis(image_copy, camera_matrix, dist_coeffs, rvecs[i], tvecs[i], 0.01);
 			}
-			imshow(sn + (string)" " + to_string(time_idx), image_copy);
+			imshow(sn + (string)" " + to_string(time_idx), image_copy);*/
 	        
 			//sort ids
 			vector<int> indices(ids.size());
@@ -214,9 +215,6 @@ int main()
 					base_tvecs[time_idx] = tmp_tvec_from_camera;
 
 					cout << "BASE_RVEC: " << base_rvecs[time_idx] << " BASE_TVEC: " << base_tvecs[time_idx] << endl;
-					Mat tmp_base_rot;
-					Rodrigues(base_rvecs[time_idx], tmp_base_rot);
-					cout << "BASE_RVEC:" << endl << tmp_base_rot << endl;
 				}
 				else
 				{
@@ -232,10 +230,7 @@ int main()
 					tmp_t_mat = tmp_rot_from_camera * tmp_rot_from_base.t() * Mat(-tmp_tvec_from_base) + Mat(tmp_tvec_from_camera);
 					base_tvecs[time_idx] = tmp_t_mat;
 
-					cout << "BASE_RVEC: " << base_rvecs[time_idx] << " BASE_TVEC: " << base_tvecs[time_idx] << endl;
-					Mat tmp_base_rot;
-					Rodrigues(base_rvecs[time_idx], tmp_base_rot);
-					cout << "BASE_RVEC:" << endl << tmp_base_rot << endl;
+					cout << "MARKER " << BASE_MARKER_ID << "(BASE) RVEC: " << base_rvecs[time_idx] << " TVEC: " << base_tvecs[time_idx] << endl;
 				}
 				
 				//Define All Marker Transform
@@ -259,6 +254,8 @@ int main()
 					cout << "MARKER " << marker_ids[i] << " RVEC: " << rvec_from_camera << " TVEC: " << tvec_from_camera << endl;
 				}
 			}
+
+			cout << endl;
 
 			for (int i = 0; i < ids.size(); i++)
 			{
@@ -303,15 +300,15 @@ int main()
 
 		Mat camera_rot;
 		Rodrigues(camera_rvecs[i], camera_rot);
-		cout << "R" << endl << camera_rot << endl;
-		cout << "T" << endl << camera_tvecs[i] << endl;
+		cout << "R" << to_string(i) << endl << camera_rot << endl;
+		cout << "T" << to_string(i) << endl << camera_tvecs[i] << endl;
 
 		
 	}
 
 	//output
 	ofstream fout;
-	fout.open("../Common/Correspondence/test2/correspondence_test.txt");
+	fout.open("../Common/Correspondence/hongo/correspondence.txt");
 	fout << TIMES << " " << CAMERAS  << " " << MARKERS;
 	
 	int observations_num = 0;
@@ -400,9 +397,14 @@ int main()
 			copy(object_points[camera_idx].begin()+last_offset, object_points[camera_idx].begin()+last_offset+current_offset, object_points_per_time.begin());
 
 			vector<Point2d> image_points_per_time(observations[time_idx][camera_idx].size()*4);
-			copy(image_points[camera_idx].begin() + last_offset, image_points[camera_idx].begin() + last_offset +current_offset, image_points_per_time.begin());
+			copy(image_points[camera_idx].begin()+last_offset, image_points[camera_idx].begin()+last_offset+current_offset, image_points_per_time.begin());
 
 			vector<Point2d> reprojected_points;
+			for (int i = 0; i < reprojected_points.size(); i++)
+			{
+				Point2d point = reprojected_points[i];
+				cout << i << " x: " << point.x << " y: " << point.y << endl;
+			}
 			projectPoints(object_points_per_time, camera_rvecs[camera_idx], camera_tvecs[camera_idx], camera_intrinsics_map[serial_numbers[camera_idx]], dist_coeffs_map[serial_numbers[camera_idx]], reprojected_points);
 
 			Mat reprojection_image = images[time_idx][serial_numbers[camera_idx]];

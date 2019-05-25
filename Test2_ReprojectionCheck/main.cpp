@@ -10,9 +10,9 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/aruco.hpp>
 
-#define MARKER_SIDE 0.048
+#define MARKER_SIDE 0.015
+#define TIMES 6
 #define CAMERAS 4
-#define TIMES 4
 
 using namespace std;
 using namespace cv;
@@ -96,7 +96,7 @@ int main()
 		for (int camera_idx = 0; camera_idx < CAMERAS; camera_idx++)
 		{
 			string sn = serial_numbers[camera_idx];
-			string file_name = "../Common/Image/IR/main/" + to_string(time_idx) + "/" + sn + ".png";
+			string file_name = "../Common/Image/IR/hongo/" + to_string(time_idx) + "/" + sn + ".png";
 			Mat image = imread(file_name);
 			if (image.empty())
 			{
@@ -154,7 +154,7 @@ int main()
 
 	
 	
-	FileStorage fs2("../Common/Correspondence/test2/Camera_Transform.xml", FileStorage::READ);
+	FileStorage fs2("../Common/Correspondence/hongo/Camera_Transform.xml", FileStorage::READ);
 	if (!fs2.isOpened())
 	{
 		cerr << "unable to open Camera_Transform.xml" << endl;
@@ -165,7 +165,7 @@ int main()
 	Mat camera_rvec, camera_rot, camera_tvec;
 	vector<Point3d> object_points;
 
-	FILE* fptr = fopen("../Common/Correspondence/test2/point3d.txt", "r");
+	FILE* fptr = fopen("../Common/Correspondence/hongo/point3d.txt", "r");
 	if (fptr == NULL)
 	{
 		cerr << "unable to open point3d.txt" << endl;
