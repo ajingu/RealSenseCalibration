@@ -88,14 +88,18 @@ namespace RSCalibration
 			fs << "t" + to_string(i) << camera_tvec;
 
 			//output for hongo
+			Mat camera_rot_t, tvec_inv;
+			camera_rot_t = camera_rot.t();
+			tvec_inv = -camera_rot_t * camera_tvec;
+
 			ofstream f_hongo;
 			f_hongo.open("../Common/Calibration/Extrinsics/" + SERIAL_NUMBERS[i] + ".txt");
 			for (int row = 0; row < 3; row++)
 			{
-				f_hongo << camera_rot.at<double>(row, 0) << " ";
-				f_hongo << camera_rot.at<double>(row, 1) << " ";
-				f_hongo << camera_rot.at<double>(row, 2) << " ";
-				f_hongo << camera_tvec.at<double>(row, 0) << endl;
+				f_hongo << camera_rot_t.at<double>(row, 0) << " ";
+				f_hongo << camera_rot_t.at<double>(row, 1) << " ";
+				f_hongo << camera_rot_t.at<double>(row, 2) << " ";
+				f_hongo << tvec_inv.at<double>(row, 0) << endl;
 			}
 
 			f_hongo.close();
