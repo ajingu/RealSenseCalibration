@@ -7,7 +7,7 @@ using namespace std;
 namespace RSCalibration
 {
 	const static double MARKER_SIDE = 0.015;
-	const static int TIMES = 6;
+	const static int TIMES = 107;
 	const static int CAMERAS = 4;
 	const static int MARKERS = 11;
 	const static int BASE_MARKER_ID = 0;

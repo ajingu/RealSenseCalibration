@@ -43,11 +43,16 @@ namespace RSCalibration
 		Mat camera_rvec, camera_rot, camera_tvec;
 		vector<Point3d> object_points;
 
+		//Reduce Images
+		num_times = num_times > 3 ? 3 : num_times;
+
 		for (int time_idx = 0; time_idx < num_times; time_idx++)
 		{
 			for (int camera_idx = 0; camera_idx < num_cameras; camera_idx++)
 			{
 				object_points.clear();
+
+				if (num_points_per_time_camera[time_idx][camera_idx] == 0) continue;
 
 				for (int i = 0; i < num_points_per_time_camera[time_idx][camera_idx]; i++)
 				{

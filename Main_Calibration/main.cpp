@@ -23,8 +23,13 @@ int main(int argc, char** argv)
 	correspondencer.CalculateTransforms(object_points, image_points, camera_rvecs, camera_tvecs);
 	correspondencer.Write(observations, camera_rvecs, camera_tvecs, base_rvecs, base_tvecs, marker_transforms_from_base);
 	//correspondencer.ReprojectionCheck(images, object_points, image_points, observations, camera_rvecs, camera_tvecs);
-	
-
+	/*
+	while (true)
+	{
+		char key = (char)waitKey(10);
+		if (key == 27)
+			break;
+	}*/
 	//Bundle Adjustment
 	google::InitGoogleLogging(argv[0]);
 	

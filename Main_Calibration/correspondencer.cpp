@@ -192,7 +192,7 @@ namespace RSCalibration
 			solvePnP(
 				object_points[i], image_points[i],
 				camera_intrinsics_map[SERIAL_NUMBERS[i]], dist_coeffs_map[SERIAL_NUMBERS[i]],
-				camera_rvecs[i], camera_tvecs[i]);
+				camera_rvecs[i], camera_tvecs[i], false, SOLVEPNP_EPNP);
 
 			Mat camera_rot;
 			Rodrigues(camera_rvecs[i], camera_rot);
@@ -295,6 +295,8 @@ namespace RSCalibration
 
 				vector<Point2d> image_points_per_time(observations[time_idx][camera_idx].size() * 4);
 				copy(image_points[camera_idx].begin() + last_offset, image_points[camera_idx].begin() + last_offset + current_offset, image_points_per_time.begin());
+
+				if (image_points_per_time.size() == 0) continue;
 
 				vector<Point2d> reprojected_points;
 				for (int i = 0; i < reprojected_points.size(); i++)

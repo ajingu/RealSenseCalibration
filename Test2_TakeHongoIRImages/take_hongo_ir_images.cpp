@@ -51,12 +51,17 @@ int main()
 
 		int time_id = 0;
 		int count_id = 0;
+		int interval_count = 0;
 
+		bool is_record_started = false;
 
 		context ctx;
 		vector<pipeline> pipelines;
 		vector<string> serial_numbers;
 		vector<Mat> images;
+
+		
+			
 
 		for (auto&& dev : ctx.query_devices())
 		{
@@ -87,6 +92,7 @@ int main()
 
 		cout << endl;
 
+		
 
 		while (true)
 		{
@@ -105,13 +111,26 @@ int main()
 				imshow(serial_numbers[pipeline_idx], image_ir);
 			}
 
+			interval_count++;
+			interval_count = interval_count % 10;
+
 
 			char key = (char)waitKey(10);
 			if (key == 27) //'esc'
 			{
 				break;
 			}
-			else if (key == 115) //'s'
+			else if (!is_record_started && key == 115) //'s'
+			{
+				is_record_started = true;
+
+				for (auto& p : directory_iterator("../Common/Image/IR/hongo/"))
+				{
+					remove_all(p.path());
+				}
+			}
+
+			if (is_record_started && interval_count == 0)
 			{
 				for (int pipeline_idx = 0; pipeline_idx < pipelines.size(); pipeline_idx++)
 				{
@@ -130,6 +149,7 @@ int main()
 
 				time_id++;
 			}
+
 		}
 
 		return EXIT_SUCCESS;
