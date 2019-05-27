@@ -80,12 +80,25 @@ namespace RSCalibration
 
 			cout << "Camera " << i << endl;
 			cout << "R:" << endl;
-			cout << camera_rot.t() << endl;
+			cout << camera_rot << endl;
 			cout << "t:" << endl;
-			cout << -camera_rot.t() * camera_tvec << endl;
+			cout << camera_tvec << endl;
 
 			fs << "R" + to_string(i) << camera_rvec;
 			fs << "t" + to_string(i) << camera_tvec;
+
+			//output for hongo
+			ofstream f_hongo;
+			f_hongo.open("../Common/Calibration/Extrinsics/" + SERIAL_NUMBERS[i] + ".txt");
+			for (int row = 0; row < 3; row++)
+			{
+				f_hongo << camera_rot.at<double>(row, 0) << " ";
+				f_hongo << camera_rot.at<double>(row, 1) << " ";
+				f_hongo << camera_rot.at<double>(row, 2) << " ";
+				f_hongo << camera_tvec.at<double>(row, 0) << endl;
+			}
+
+			f_hongo.close();
 		}
 
 		fs.release();
