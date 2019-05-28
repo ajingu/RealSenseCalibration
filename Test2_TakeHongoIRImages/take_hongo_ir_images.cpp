@@ -27,6 +27,8 @@ void saveIntrinsics(rs2_intrinsics& intrinsics, string serial_number)
 	intrinsics_mat.at<double>(1, 2) = intrinsics.ppy;
 	intrinsics_mat.at<double>(2, 2) = 1;
 
+	//cout << intrinsics_mat << endl;
+
 	fs << "intrinsics" << intrinsics_mat;
 
 	auto dist_coeffs = intrinsics.coeffs;
@@ -45,9 +47,9 @@ int main()
 {
 	try
 	{
-		int width = 640;
-		int height = 480;
-		int fps = 30;
+		int width = 848;// 640;
+		int height = 480;// 480;
+		int fps = 90;
 
 		int time_id = 0;
 		int count_id = 0;
@@ -83,7 +85,7 @@ int main()
 			string sn = string(dev.get_info(RS2_CAMERA_INFO_SERIAL_NUMBER));
 			serial_numbers.emplace_back(sn);
 
-			rs2_intrinsics intrinsics = pipeline_profile.get_stream(RS2_STREAM_INFRARED).as<rs2::video_stream_profile>().get_intrinsics();
+			rs2_intrinsics intrinsics = pipeline_profile.get_stream(RS2_STREAM_INFRARED).as<rs2::video_stream_profile>().get_intrinsics();	
 			saveIntrinsics(intrinsics, sn);
 
 			cout << count_id << " " << sn << endl;
@@ -105,7 +107,7 @@ int main()
 				frame ir_frame_left = frames.get_infrared_frame(1);
 
 				Mat image_ir(Size(width, height), CV_8UC1, (void*)ir_frame_left.get_data());
-
+				//cv::resize(image_ir, image_ir, cv::Size(), 0.5, 0.5);
 				images.emplace_back(image_ir);
 
 				imshow(serial_numbers[pipeline_idx], image_ir);

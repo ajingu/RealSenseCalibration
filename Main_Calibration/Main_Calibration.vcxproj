@@ -114,6 +114,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>ceres.lib;gflags_static.lib;gflags_nothreads_static.lib;glog.lib;shlwapi.lib;realsense2.lib;opencv_world401.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

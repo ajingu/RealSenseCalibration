@@ -3,8 +3,9 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>C:\Users\MEIP-users\Documents\Ceres\include;C:\Users\MEIP-users\Documents\gflags\include;C:\Users\MEIP-users\Documents\glog\include;C:\Users\MEIP-users\Downloads\ceres\eigen;C:\Users\MEIP-users\Downloads\opencv\include;C:\Program Files %28x86%29\Intel RealSense SDK 2.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\MEIP-users\Documents\Ceres\lib;C:\Users\MEIP-users\Documents\glog\lib;C:\Users\MEIP-users\Documents\gflags\lib;C:\Program Files %28x86%29\Intel RealSense SDK 2.0\lib\x64;C:\Users\MEIP-users\Downloads\opencv\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\shinolab\Documents\jingu\Ceres_Install\include;C:\Users\shinolab\Documents\jingu\gflags\include;C:\Users\shinolab\Documents\jingu\glog\include;C:\Users\shinolab\Documents\jingu\ceres\eigen;C:\Users\shinolab\Documents\jingu\opencv\include;C:\Users\shinolab\Documents\jingu\librealsense-2.15.0_install\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\shinolab\Documents\jingu\Ceres_Install\lib;C:\Users\shinolab\Documents\jingu\glog\lib;C:\Users\shinolab\Documents\jingu\gflags\lib;C:\Users\shinolab\Documents\jingu\librealsense-2.15.0_install\lib;C:\Users\shinolab\Documents\jingu\opencv\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>C:\Users\shinolab\Documents\jingu\librealsense-2.15.0_install\bin;C:\Users\shinolab\Documents\jingu\opencv\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

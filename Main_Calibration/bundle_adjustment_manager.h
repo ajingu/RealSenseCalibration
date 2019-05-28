@@ -1,6 +1,9 @@
 #pragma once
+#include <iostream>
 
 #include "bundle_adjustment.h"
+
+using namespace std;
 
 namespace RSCalibration
 {

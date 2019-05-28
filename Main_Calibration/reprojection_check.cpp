@@ -43,8 +43,7 @@ namespace RSCalibration
 		Mat camera_rvec, camera_rot, camera_tvec;
 		vector<Point3d> object_points;
 
-		//Reduce Images
-		num_times = num_times > 3 ? 3 : num_times;
+		double reprojection_error = 0;
 
 		for (int time_idx = 0; time_idx < num_times; time_idx++)
 		{
@@ -73,16 +72,30 @@ namespace RSCalibration
 				Mat reprojection_image = images[time_idx][SERIAL_NUMBERS[camera_idx]];
 				for (int i = 0; i < reprojected_points.size(); i++)
 				{
-					drawMarker(reprojection_image, image_points_per_time[time_idx][camera_idx][i], Scalar(255, 0, 0), MARKER_CROSS, 10, 2);
-					drawMarker(reprojection_image, reprojected_points[i], Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
+					Point2f image_point = image_points_per_time[time_idx][camera_idx][i];
+					Point2d reprojected_point = reprojected_points[i];
+
+					reprojection_error += (pow(double(image_point.x)-reprojected_point.x, 2) + pow(double(image_point.y) - reprojected_point.y, 2)) / 2;
+
+					if (time_idx < 3)
+					{
+						drawMarker(reprojection_image, image_point, Scalar(255, 0, 0), MARKER_CROSS, 10, 2);
+						drawMarker(reprojection_image, reprojected_point, Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
+					}
 				}
 
-				putText(reprojection_image, "BLUE : Marker Points (t+1)", Point{ 10,20 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
-				putText(reprojection_image, "GREEN : Reprojected Points (t -> t+1)", Point{ 10,45 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(0, 255, 0), 2);
+				if (time_idx < 3)
+				{
+					putText(reprojection_image, "BLUE : Marker Points (t+1)", Point{ 10,20 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
+					putText(reprojection_image, "GREEN : Reprojected Points (t -> t+1)", Point{ 10,45 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(0, 255, 0), 2);
 
-				imshow("Reprojection " + SERIAL_NUMBERS[camera_idx] + " " + to_string(time_idx), reprojection_image);
+					imshow("Reprojection " + SERIAL_NUMBERS[camera_idx] + " " + to_string(time_idx), reprojection_image);
+				}
 			}
 		}
+
+		cout << "Reprojection Error: " << reprojection_error << endl;
+		cout << "Average Reprojection Error per One Coordinate: " << pow((reprojection_error * 2.0) / (num_points_all * 2.0), 0.5) << endl;
 
 		fclose(fptr);
 		fs2.release();
