@@ -64,7 +64,7 @@ int main()
 			config cfg;
 			cfg.enable_device(dev.get_info(RS2_CAMERA_INFO_SERIAL_NUMBER));
 			cfg.enable_stream(RS2_STREAM_INFRARED, 1, width, height, RS2_FORMAT_Y8, fps); //left IR Image
-			
+
 			auto depth_sensor = dev.first<rs2::depth_sensor>();
 
 			if (depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED))
@@ -72,7 +72,7 @@ int main()
 				depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f);
 			}
 
-		    auto pipeline_profile = pipe.start(cfg);
+			auto pipeline_profile = pipe.start(cfg);
 			pipelines.emplace_back(pipe);
 
 			string sn = string(dev.get_info(RS2_CAMERA_INFO_SERIAL_NUMBER));
@@ -86,7 +86,7 @@ int main()
 		}
 
 		cout << endl;
-		
+
 
 		while (true)
 		{
@@ -101,7 +101,7 @@ int main()
 				Mat image_ir(Size(width, height), CV_8UC1, (void*)ir_frame_left.get_data());
 
 				images.emplace_back(image_ir);
-				
+
 				imshow(serial_numbers[pipeline_idx], image_ir);
 			}
 
@@ -116,7 +116,7 @@ int main()
 				for (int pipeline_idx = 0; pipeline_idx < pipelines.size(); pipeline_idx++)
 				{
 					//string directory_path = "../Common/Image/IR/main/" + to_string(time_id);
-					string directory_path = "../Common/Image/IR/main/hongo/" + to_string(time_id);
+					string directory_path = "../Common/Image/IR/hongo/" + to_string(time_id);
 					if (!exists(directory_path))
 					{
 						create_directory(directory_path);
