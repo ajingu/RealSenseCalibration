@@ -21,35 +21,69 @@ namespace RSCalibration
 		for (int i = 0; i < bal_problem.num_observations(); i++)
 		{
 			int camera_idx = bal_problem.camera_idx(i);
+			int marker_idx = bal_problem.marker_idx(i);
 
 			if (camera_idx == 0)
 			{
-				CostFunction* base_camera_cost_function =
-					BaseCameraReprojectionError::create(
-						bal_observations + 8 * i,
-						MARKER_SIDE,
-						camera_intrinsics_map[SERIAL_NUMBERS[0]],
-						dist_coeffs_map[SERIAL_NUMBERS[0]]);
+				if (marker_idx == 0)
+				{
+					CostFunction* cost_function =
+						BaseCameraBaseMarkerReprojectionError::create(
+							bal_observations + 8 * i,
+							MARKER_SIDE,
+							camera_intrinsics_map[SERIAL_NUMBERS[0]],
+							dist_coeffs_map[SERIAL_NUMBERS[0]]);
 
-				problem.AddResidualBlock(base_camera_cost_function,
-					NULL,
-					bal_problem.mutable_base_marker_transform_from_base_camera(i),
-					bal_problem.mutable_marker_transform_from_base_marker(i));
+					problem.AddResidualBlock(cost_function,
+						NULL,
+						bal_problem.mutable_base_marker_transform_from_base_camera(i));
+				}
+				else
+				{
+					CostFunction* cost_function =
+						BaseCameraReprojectionError::create(
+							bal_observations + 8 * i,
+							MARKER_SIDE,
+							camera_intrinsics_map[SERIAL_NUMBERS[0]],
+							dist_coeffs_map[SERIAL_NUMBERS[0]]);
+
+					problem.AddResidualBlock(cost_function,
+						NULL,
+						bal_problem.mutable_base_marker_transform_from_base_camera(i),
+						bal_problem.mutable_marker_transform_from_base_marker(i));
+				}
 			}
 			else
 			{
-				CostFunction* target_camera_cost_function =
-					TargetCameraReprojectionError::create(
-						bal_observations + 8 * i,
-						MARKER_SIDE,
-						camera_intrinsics_map[SERIAL_NUMBERS[camera_idx]],
-						dist_coeffs_map[SERIAL_NUMBERS[camera_idx]]);
+				if (marker_idx == 0)
+				{
+					CostFunction* cost_function =
+						TargetCameraBaseMarkerReprojectionError::create(
+							bal_observations + 8 * i,
+							MARKER_SIDE,
+							camera_intrinsics_map[SERIAL_NUMBERS[camera_idx]],
+							dist_coeffs_map[SERIAL_NUMBERS[camera_idx]]);
 
-				problem.AddResidualBlock(target_camera_cost_function,
-					NULL,
-					bal_problem.mutable_camera_transform_from_base_camera(i),
-					bal_problem.mutable_base_marker_transform_from_base_camera(i),
-					bal_problem.mutable_marker_transform_from_base_marker(i));
+					problem.AddResidualBlock(cost_function,
+						NULL,
+						bal_problem.mutable_camera_transform_from_base_camera(i),
+						bal_problem.mutable_base_marker_transform_from_base_camera(i));
+				}
+				else
+				{
+					CostFunction* cost_function =
+						TargetCameraReprojectionError::create(
+							bal_observations + 8 * i,
+							MARKER_SIDE,
+							camera_intrinsics_map[SERIAL_NUMBERS[camera_idx]],
+							dist_coeffs_map[SERIAL_NUMBERS[camera_idx]]);
+
+					problem.AddResidualBlock(cost_function,
+						NULL,
+						bal_problem.mutable_camera_transform_from_base_camera(i),
+						bal_problem.mutable_base_marker_transform_from_base_camera(i),
+						bal_problem.mutable_marker_transform_from_base_marker(i));
+				}
 			}
 		}
 
@@ -63,6 +97,14 @@ namespace RSCalibration
 
 	void BAManager::Write()
 	{
+		cout << "Marker Transform" << endl;
+		for (int marker_idx = 0; marker_idx < MARKERS; marker_idx++)
+		{
+			double* marker_transform = bal_problem.marker_transform(marker_idx);
+			cout << marker_idx << " ";
+			cout << "Rvec: " << marker_transform[0] << " " << marker_transform[1] << " " << marker_transform[2] << " ";
+			cout << "tvec: " << marker_transform[3] << " " << marker_transform[4] << " " << marker_transform[5] << endl;
+		}
 		FileStorage fs("../Common/Correspondence/hongo/Camera_Transform.xml", FileStorage::WRITE);
 		if (!fs.isOpened()) {
 			cerr << "unable to open Camera_Transform.xml" << endl;
@@ -84,21 +126,23 @@ namespace RSCalibration
 			cout << "t:" << endl;
 			cout << camera_tvec << endl;
 
-			fs << "R" + to_string(i) << camera_rvec;
+			//base camera transform on target camera coordinate(Reprojection Input, BA Input)
+			fs << "R" + to_string(i) << camera_rot;
 			fs << "t" + to_string(i) << camera_tvec;
 
 			//output for hongo
+			//target camera transform on base camera coordinate(Hongo Input)
 			Mat camera_rot_t, tvec_inv;
 			camera_rot_t = camera_rot.t();
 			tvec_inv = -camera_rot_t * camera_tvec;
 
 			ofstream f_hongo;
-			f_hongo.open("../Common/Calibration/Extrinsics/" + SERIAL_NUMBERS[i] + ".txt");
+			f_hongo.open("../Common/Calibration/Extrinsics/mat" + to_string(i) + ".txt");
 			for (int row = 0; row < 3; row++)
 			{
-				f_hongo << camera_rot_t.at<double>(row, 0) << " ";
-				f_hongo << camera_rot_t.at<double>(row, 1) << " ";
-				f_hongo << camera_rot_t.at<double>(row, 2) << " ";
+				f_hongo << camera_rot_t.at<double>(row, 0) << endl;
+				f_hongo << camera_rot_t.at<double>(row, 1) << endl;
+				f_hongo << camera_rot_t.at<double>(row, 2) << endl;
 				f_hongo << tvec_inv.at<double>(row, 0) << endl;
 			}
 

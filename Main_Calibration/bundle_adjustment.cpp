@@ -56,9 +56,19 @@ namespace RSCalibration
 		return camera_index_[observation_id];
 	}
 
+	int BALProblem::marker_idx(int observation_id) const
+	{
+		return marker_index_[observation_id];
+	}
+
 	double* BALProblem::camera_parameters(int camera_idx)
 	{
 		return parameters_ + 6 * camera_idx;
+	}
+
+	double* BALProblem::marker_transform(int marker_idx)
+	{
+		return parameters_ + 6 * num_cameras_ + 6 * num_times_ + 6 * marker_idx;
 	}
 
 	double* BALProblem::mutable_camera_transform_from_base_camera(int observation_idx)

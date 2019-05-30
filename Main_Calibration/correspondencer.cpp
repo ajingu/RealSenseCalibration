@@ -96,7 +96,7 @@ namespace RSCalibration
 					return ids[i1] < ids[i2];
 				});
 
-				//Define Marker Transform from Camera 
+				//Define Base Marker Transform from Base Camera 
 				if (camera_idx == 0)
 				{
 					int tmp_marker_id = ids[indices[0]];
@@ -192,10 +192,13 @@ namespace RSCalibration
 			solvePnP(
 				object_points[i], image_points[i],
 				camera_intrinsics_map[SERIAL_NUMBERS[i]], dist_coeffs_map[SERIAL_NUMBERS[i]],
-				camera_rvecs[i], camera_tvecs[i]);
+				camera_rvecs[i], camera_tvecs[i], false, SOLVEPNP_EPNP);
 
+			//base camera transform on target camera coordinate(Reprojection Input, BA Input)
 			Mat camera_rot;
 			Rodrigues(camera_rvecs[i], camera_rot);
+		
+			
 			cout << "R" << to_string(i) << endl << camera_rot << endl;
 			cout << "T" << to_string(i) << endl << camera_tvecs[i] << endl;
 		}
@@ -251,6 +254,7 @@ namespace RSCalibration
 		}
 		for (int i = 0; i < CAMERAS; i++)
 		{
+			//base camera transform on target camera coordinate
 			Vec3d camera_rvec = camera_rvecs[i];
 			Vec3d camera_tvec = camera_tvecs[i];
 
@@ -279,6 +283,8 @@ namespace RSCalibration
 
 	void Correspondencer::ReprojectionCheck(vector<map<string, Mat>>& images, vector<vector<Point3d>>& object_points, vector<vector<Point2f>>& image_points, vector<vector<vector<Observation>>>& observations, vector<Vec3d>& camera_rvecs, vector<Vec3d>& camera_tvecs)
 	{
+		double reprojection_error = 0;
+
 		for (int time_idx = 0; time_idx < TIMES; time_idx++)
 		{
 			for (int camera_idx = 0; camera_idx < CAMERAS; camera_idx++)
@@ -296,26 +302,39 @@ namespace RSCalibration
 				vector<Point2d> image_points_per_time(observations[time_idx][camera_idx].size() * 4);
 				copy(image_points[camera_idx].begin() + last_offset, image_points[camera_idx].begin() + last_offset + current_offset, image_points_per_time.begin());
 
+				if (image_points_per_time.size() == 0) continue;
+
 				vector<Point2d> reprojected_points;
-				for (int i = 0; i < reprojected_points.size(); i++)
-				{
-					Point2d point = reprojected_points[i];
-					cout << i << " x: " << point.x << " y: " << point.y << endl;
-				}
 				projectPoints(object_points_per_time, camera_rvecs[camera_idx], camera_tvecs[camera_idx], camera_intrinsics_map[SERIAL_NUMBERS[camera_idx]], dist_coeffs_map[SERIAL_NUMBERS[camera_idx]], reprojected_points);
 
 				Mat reprojection_image = images[time_idx][SERIAL_NUMBERS[camera_idx]];
+				Mat reprojection_image_copy;
+				reprojection_image.copyTo(reprojection_image_copy);
+
 				for (int point_index = 0; point_index < reprojected_points.size(); point_index++)
 				{
-					drawMarker(reprojection_image, image_points_per_time[point_index], Scalar(255, 0, 0), MARKER_CROSS, 10, 2);
-					drawMarker(reprojection_image, reprojected_points[point_index], Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
+					Point2f image_point = image_points_per_time[point_index];
+					Point2d reprojected_point = reprojected_points[point_index];
+
+					reprojection_error += (pow(double(image_point.x) - reprojected_point.x, 2) + pow(double(image_point.y) - reprojected_point.y, 2)) / 2;
+
+					if (time_idx < 3)
+					{
+						drawMarker(reprojection_image_copy, image_point, Scalar(255, 0, 0), MARKER_CROSS, 10, 2);
+						drawMarker(reprojection_image_copy, reprojected_point, Scalar(0, 255, 0), MARKER_CROSS, 10, 2);
+					}
 				}
 
-				putText(reprojection_image, "BLUE : Marker Points (t+1)", Point{ 10,20 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
-				putText(reprojection_image, "GREEN : Reprojected Points (t -> t+1)", Point{ 10,45 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(0, 255, 0), 2);
+				if (time_idx < 3)
+				{
+					putText(reprojection_image_copy, "BLUE : Marker Points (t+1)", Point{ 10,20 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
+					putText(reprojection_image_copy, "GREEN : Reprojected Points (t -> t+1)", Point{ 10,45 }, FONT_HERSHEY_SIMPLEX, 0.7, Scalar(0, 255, 0), 2);
 
-				imshow("Reprojection " + SERIAL_NUMBERS[camera_idx] + " " + to_string(time_idx), reprojection_image);
+					imshow("Reprojection (Before BA) " + SERIAL_NUMBERS[camera_idx] + " " + to_string(time_idx), reprojection_image_copy);
+				}
 			}
 		}
+
+		cout << endl << "Reprojection Error (Before BA): " << reprojection_error << endl << endl;
 	}
 }
